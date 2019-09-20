@@ -1,0 +1,17 @@
+# Environment variables:
+#   * 'EXEC_MODE': is the execution mode. Valid values are 'local'
+#     (single user) or 'system' (all users). Running scripts in system mode
+#     requires super-user privileges.
+#   * 'BASEPATH': is the installation path for packages. Usually it is '/usr'
+#     for 'system' mode and '~/.local' for 'local' mode.
+#   * 'ENV_*': are special boolean variables that may be used for controlling
+#     the scripts flow. See the 'ENV' rule from every script to see their
+#     requirements.
+
+EXEC_MODE=local
+BASEPATH=~/.local
+
+ENV_TEMPLATE=true
+
+template-v0.1.0
+

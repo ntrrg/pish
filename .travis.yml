@@ -1,0 +1,9 @@
+os: linux
+dist: xenial
+git:
+  depth: 1
+language: bash
+before_install:
+  - sudo apt-get install -y shellcheck
+script: make ci
+
