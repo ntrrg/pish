@@ -112,3 +112,31 @@ checksum() {
   return 0
 }
 
+get_latest_release() {
+  # Example for Go
+  wget -qO - 'https://golang.org/dl/?mode=json' |
+    grep -m 1 "version" |
+    cut -d '"' -f 4 |
+    sed "s/go//"
+
+  # Example for Node.js
+  wget -qO - 'https://nodejs.org/en/download/current/' |
+    grep -m 1 "Latest Current Version: " |
+    cut -d '>' -f 3 |
+    sed "s/<\/strong//"
+
+  # Example for GitHub latest release
+  wget -qO - 'https://api.github.com/repos/ntrrg/ntdocutils/releases/latest' |
+    grep -m 1 "tag_name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
+
+  # Example for GitHub latest tag
+  wget -qO - 'https://api.github.com/repos/koalaman/shellcheck/tags' |
+    grep -m 1 "name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
+
+  return 0
+}
+

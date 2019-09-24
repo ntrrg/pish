@@ -91,14 +91,7 @@ main() {
   elif [ ! -f "$TARGET" ]; then
     echo "Can't find '$TARGET'"
     printf "Downloading from '%s'... " "$TARGETS_MIRROR"
-
-    wget "$(debug not echo "-q")" "$TARGETS_MIRROR/$TARGET" || (
-      ERR="$?"
-      rm -f "$TARGET"
-      echo "[FAIL]"
-      return "$ERR"
-    )
-
+    download_file "$TARGETS_MIRROR/$TARGET"
     echo "[DONE]"
   fi
 
@@ -123,15 +116,7 @@ main() {
       if [ ! -f "$FILE" ]; then
         echo "Can't find '$FILE'"
         printf "Downloading from '%s'... " "$SCRIPTS_MIRROR"
-
-        URL="$SCRIPTS_MIRROR/$(basename "$FILE")"
-        wget -"$(debug not echo "q")"O "$FILE" "$URL" || (
-          ERR="$?"
-          rm -f "$FILE"
-          echo "[FAIL]"
-          return "$ERR"
-        )
-
+        download_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
         chmod +x "$FILE"
         echo "[DONE]"
       fi
@@ -141,7 +126,6 @@ main() {
       fi
 
       echo "Checking '$NAME'..."
-
       check_su_passwd "$FILE"
       check_rules "$FILE" || ERRORS="true"
       run_script "$FILE" check
@@ -164,7 +148,6 @@ main() {
       debug echo
       RE="^.\+-v\(.\+\)$"
       RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
-
       run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
       debug not echo "[DONE]"
     done
@@ -249,42 +232,6 @@ check_su_passwd() {
   stty echo
   trap - EXIT
   echo
-  return 0
-}
-
-debug() {
-  VALUE="true"
-
-  if [ "$1" = "not" ]; then
-    VALUE="false"
-    shift
-  fi
-
-  if [ "$DEBUG" = "$VALUE" ]; then
-    "$@"
-  fi
-
-  return 0
-}
-
-get_os() {
-  case "$(uname -s)" in
-    Darwin* )
-      echo "macos"
-      ;;
-
-    * )
-      # shellcheck disable=2230
-      if which lsb_release; then
-        echo "$(lsb_release -si | tr "[:upper:]" "[:lower:]")-$(lsb_release -sr)"
-      elif which getprop; then
-        echo "android-$(getprop ro.build.version.release)"
-      else
-        echo "all"
-      fi
-      ;;
-  esac
-
   return 0
 }
 
@@ -380,7 +327,6 @@ export SUDO="${SUDO:-false}"
 export SU_PASSWD="$SU_PASSWD"
 export FORCE="${FORCE:-false}"
 
-DEBUG="${DEBUG:-false}"
 MODES="${MODES:-download main}"
 MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 SCRIPTS=""
@@ -393,4 +339,5 @@ export ARCH="${ARCH:-$(uname -m)}"
 export EXEC_MODE="${EXEC_MODE:-local}"
 export BASEPATH="${BASEPATH:-~/.local}"
 export RELEASE
+export DEBUG="${DEBUG:-false}"
 

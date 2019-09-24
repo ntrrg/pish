@@ -30,6 +30,56 @@ _clean() {
 # Copyright (c) 2019 Miguel Angel Rivera Notararigo
 # Released under the MIT License
 
+debug() {
+  VALUE="true"
+
+  if [ "$1" = "not" ]; then
+    VALUE="false"
+    shift
+  fi
+
+  if [ "$DEBUG" = "$VALUE" ]; then
+    "$@"
+  fi
+
+  return 0
+}
+
+download_file() {
+  URL="$1"
+  FILE="${2:-$(basename "$URL")}"
+
+  wget -"$(debug not echo "q")"O "$FILE" "$URL" || (
+    ERR="$?"
+    echo "[FAIL]"
+    rm -f "$FILE"
+    return "$ERR"
+  )
+
+  return 0
+}
+
+get_os() {
+  case "$(uname -s)" in
+    Darwin* )
+      echo "macos"
+      ;;
+
+    * )
+      # shellcheck disable=2230
+      if which lsb_release; then
+        echo "$(lsb_release -si | tr "[:upper:]" "[:lower:]")-$(lsb_release -sr)"
+      elif which getprop; then
+        echo "android-$(getprop ro.build.version.release)"
+      else
+        echo "all"
+      fi
+      ;;
+  esac
+
+  return 0
+}
+
 run_su() {
   CMD="su -c"
   ARGS=""
@@ -162,6 +212,34 @@ checksum() {
     echo "Invalid checksum for '$FILE'"
     return 1
   fi
+
+  return 0
+}
+
+get_latest_release() {
+  # Example for Go
+  wget -qO - 'https://golang.org/dl/?mode=json' |
+    grep -m 1 "version" |
+    cut -d '"' -f 4 |
+    sed "s/go//"
+
+  # Example for Node.js
+  wget -qO - 'https://nodejs.org/en/download/current/' |
+    grep -m 1 "Latest Current Version: " |
+    cut -d '>' -f 3 |
+    sed "s/<\/strong//"
+
+  # Example for GitHub latest release
+  wget -qO - 'https://api.github.com/repos/ntrrg/ntdocutils/releases/latest' |
+    grep -m 1 "tag_name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
+
+  # Example for GitHub latest tag
+  wget -qO - 'https://api.github.com/repos/koalaman/shellcheck/tags' |
+    grep -m 1 "name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
 
   return 0
 }
