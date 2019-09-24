@@ -19,6 +19,10 @@ main() {
   return 0
 }
 
+clean() {
+  return 0
+}
+
 _clean() {
   ERR_CODE="$?"
   set +e

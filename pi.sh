@@ -207,7 +207,6 @@ main() {
       fi
 
       echo "Checking '$NAME'..."
-
       check_su_passwd "$FILE"
       check_rules "$FILE" || ERRORS="true"
       run_script "$FILE" check
@@ -230,7 +229,6 @@ main() {
       debug echo
       RE="^.\+-v\(.\+\)$"
       RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
-
       run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
       debug not echo "[DONE]"
     done
