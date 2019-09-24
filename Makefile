@@ -13,10 +13,6 @@ clean:
 .PHONY: ci
 ci: clean all
 
-.PHONY: lint
-lint:
-	shellcheck -s sh $(wildcard scripts/*.sh) $(binary)
-
 $(binary): src/head.sh src/helpers.sh src/$(binary) src/tail.sh
 	cat $^ > $@
 	shellcheck -s sh $@
