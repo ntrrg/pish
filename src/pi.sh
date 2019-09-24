@@ -354,7 +354,7 @@ Scripts syntax:
   * The script may have custom functions and variables.
   * The script must pass shellcheck.
 
-  See $MIRROR/src/scripts/template-v0.1.0-debian-10-x86_64.sh
+  See $MIRROR/src/scripts/template-v0.1.0.sh
 
 Environment variables:
   * 'ARCH': behaves as the '--arch' flag.
