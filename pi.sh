@@ -175,12 +175,7 @@ main() {
 
       check_su_passwd "$FILE"
       check_rules "$FILE" || ERRORS="true"
-
-      eval "$FILE check $(debug not printf "> /dev/null 2> /dev/null")" || (
-        ERR="$?"
-        echo "[FAIL]"
-        return "$ERR"
-      )
+      run_script "$FILE" check
     fi
   done
 
@@ -201,13 +196,7 @@ main() {
       RE="^.\+-v\(.\+\)$"
       RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
 
-      FILE="$SCRIPTS_DIR/$SCRIPT-$OS-$ARCH.sh"
-      eval "$FILE $MODE $(debug not printf "> /dev/null 2> /dev/null")" || (
-        ERR="$?"
-        echo "[FAIL]"
-        return "$ERR"
-      )
-
+      run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
       debug not echo "[DONE]"
     done
   done
@@ -327,6 +316,14 @@ get_os() {
       ;;
   esac
 
+  return 0
+}
+
+run_script() {
+  FILE="$1"
+  STAGE="${2:-all}"
+
+  eval "$FILE $STAGE $(debug not printf "> /dev/null 2> /dev/null")"
   return 0
 }
 
