@@ -111,7 +111,7 @@ main() {
     else
       SCRIPTS="$SCRIPTS $LINE"
       NAME="$LINE"
-      FILE="$SCRIPTS_DIR/$LINE.sh"
+      FILE="$SCRIPTS_DIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
 
       if [ ! -f "$FILE" ]; then
         echo "Can't find '$FILE'"
@@ -146,8 +146,17 @@ main() {
       echo
       printf "* %s " "$SCRIPT"
       debug echo
-      RE="^.\+-v\(.\+\)$"
-      RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
+      RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
+
+      if echo "$SCRIPT" | grep -q "#"; then
+        RELEASE="$(echo "$SCRIPT" | cut -sd '#' -f 2)"
+      elif echo "$SCRIPT" | grep -q "$RE"; then
+        RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
+      else
+        RELEASE="latest"
+      fi
+
+      SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
       run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
       debug not echo "[DONE]"
     done
@@ -287,8 +296,8 @@ Script list file syntax:
   A line-separated list of scripts to run. Each line must have one of the
   following syntax:
 
-    KEY=VALUE     # Environment variable
-    NAME-vRELEASE # Script
+    KEY=VALUE       # Environment variable
+    NAME[#RELEASE]  # Script
 
   See $TARGETS_MIRROR/template.slist
 
@@ -298,7 +307,7 @@ Scripts syntax:
   * The script may have custom functions and variables.
   * The script must pass shellcheck.
 
-  See $MIRROR/src/scripts/template-v0.1.0.sh
+  See $MIRROR/src/scripts/template.sh
 
 Environment variables:
   * 'ARCH': behaves as the '--arch' flag.

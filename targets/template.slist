@@ -13,5 +13,13 @@ BASEPATH=~/.local
 
 ENV_TEMPLATE=true
 
+# Run the script 'template.sh' with the given release (0.1.0)
+template#0.1.0
+
+# Run the script 'template.sh' with the latest release
+template
+
+# Some scripts may not support multiple releases, in this case, creating a
+# script per release could be a good idea.
 template-v0.1.0
 
