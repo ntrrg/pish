@@ -17,6 +17,6 @@ DEBIAN_FRONTEND=noninteractive
 EXEC_MODE=local
 BASEPATH=~/.local
 
-shellcheck-v0.7.0
+shellcheck#0.7.0
 # docker-cli-v18.09.5~3-0
 
