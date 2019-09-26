@@ -74,3 +74,9 @@ which() {
   return 0
 }
 
+which_print() {
+  # shellcheck disable=2230
+  which "$1" || (echo "'$1' not found"; return 1)
+  return 0
+}
+

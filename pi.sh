@@ -80,6 +80,12 @@ which() {
   return 0
 }
 
+which_print() {
+  # shellcheck disable=2230
+  which "$1" || (echo "'$1' not found"; return 1)
+  return 0
+}
+
 # Copyright (c) 2019 Miguel Angel Rivera Notararigo
 # Released under the MIT License
 
@@ -225,9 +231,11 @@ check_rules() {
   )"
 
   for BIN_DEP in $BIN_DEPS; do
-    if ! command -v "$BIN_DEP" > /dev/null; then
+    # shellcheck disable=2230
+    if ! which "$BIN_DEP"; then
       ERRORS="true"
-      echo "BIN_DEP: '$BIN_DEP' not found"
+      # shellcheck disable=2230
+      echo "BIN_DEP: $(which_print "$BIN_DEP")"
     fi
   done
 
