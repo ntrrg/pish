@@ -89,6 +89,11 @@ main() {
   fi
 
   for TARGET in "$@"; do
+    echo
+    echo "############################################################"
+    echo "$TARGET"
+    echo "############################################################"
+    echo
     run_target "$TARGET"
   done
 
@@ -183,6 +188,7 @@ run_script() {
 }
 
 run_target() {
+  SCRIPTS=""
   TARGET="$1"
 
   if [ -z "$TARGET" ] || [ "$TARGET" = "-" ]; then
@@ -350,7 +356,6 @@ export FORCE="${FORCE:-false}"
 
 MODES="${MODES:-download main}"
 MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
-SCRIPTS=""
 SCRIPTS_DIR="${SCRIPTS_DIR:-$TMP_DIR}"
 SCRIPTS_MIRROR="${SCRIPTS_MIRROR:-$MIRROR/scripts}"
 TARGETS_MIRROR="${TARGETS_MIRROR:-$MIRROR/targets}"
