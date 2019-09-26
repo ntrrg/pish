@@ -139,11 +139,9 @@ main() {
   cd "$TMP_DIR"
   mkdir -p "docker-cli"
 
-  if [ "$FORCE" = "false" ] && which docker; then
-    if docker version -f "{{ .Client.Version }}" 2> /dev/null | grep -q "$RELEASE$"; then
-      echo "Docker CLI v$RELEASE is already installed."
-      return 0
-    fi
+  if [ "$FORCE" = "false" ] && is_installed; then
+    echo "Docker CLI v$RELEASE is already installed."
+    return 0
   fi
 
   case "$OS" in
@@ -211,6 +209,16 @@ get_latest_release() {
     sed "s/^v//"
 
   return 0
+}
+
+is_installed() {
+  which docker
+
+  if docker version -f "{{ .Client.Version }}" 2> /dev/null | grep -q "$RELEASE$"; then
+    return 0
+  fi
+
+  return 1
 }
 
 if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then

@@ -41,11 +41,9 @@ download() {
 main() {
   cd "$TMP_DIR"
 
-  if [ "$FORCE" = "false" ] && which docker; then
-    if dockerd --version | grep -q "version $RELEASE,"; then
-      echo "Docker v$RELEASE is already installed."
-      return 0
-    fi
+  if [ "$FORCE" = "false" ] && is_installed; then
+    echo "Docker v$RELEASE is already installed."
+    return 0
   fi
 
   case "$OS" in
@@ -92,6 +90,16 @@ get_latest_release() {
     sed "s/^v//"
 
   return 0
+}
+
+is_installed() {
+  which dockerd
+
+  if dockerd --version | grep -q "version $RELEASE,"; then
+    return 0
+  fi
+
+  return 1
 }
 
 if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then

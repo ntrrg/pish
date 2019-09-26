@@ -25,11 +25,9 @@ download() {
 main() {
   cd "$TMP_DIR"
 
-  if [ "$FORCE" = "false" ] && which shellcheck; then
-    if shellcheck --version | grep -q "version: $RELEASE$"; then
-      echo "Shellcheck v$RELEASE is already installed."
-      return 0
-    fi
+  if [ "$FORCE" = "false" ] && is_installed; then
+    echo "Shellcheck v$RELEASE is already installed."
+    return 0
   fi
 
   tar --strip-components 1 --exclude "*.txt" \
@@ -72,6 +70,16 @@ get_latest_release() {
     sed "s/^v//"
 
   return 0
+}
+
+is_installed() {
+  which shellcheck
+
+  if shellcheck --version | grep -q "version: $RELEASE$"; then
+    return 0
+  fi
+
+  return 1
 }
 
 if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then

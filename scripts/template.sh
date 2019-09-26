@@ -180,6 +180,12 @@ main() {
   # This stage executes the main code of the script.
   cd "$TMP_DIR"
   echo "Running v$RELEASE..."
+
+  if [ "$FORCE" = "false" ] && is_installed; then
+    echo "Template v$RELEASE is already installed."
+    return 0
+  fi
+
   return 0
 }
 
@@ -254,6 +260,10 @@ get_latest_release() {
     sed "s/^v//"
 
   return 0
+}
+
+is_installed() {
+  return 1
 }
 
 if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then
