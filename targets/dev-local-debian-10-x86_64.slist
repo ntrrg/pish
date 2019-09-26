@@ -3,6 +3,9 @@
 EXEC_MODE=local
 BASEPATH=~/.local
 
-docker-cli#19.03.2
+# Containers
+# docker-cli#19.03.2
+
+# Shell scripting
 shellcheck#0.7.0
 

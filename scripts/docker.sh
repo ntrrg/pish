@@ -117,11 +117,27 @@ which_print() {
 #########
 # RULES #
 #########
-# SUPER_USER=false
-# ENV=
-# EXEC_MODE=local
+# SUPER_USER=true
+# ENV=!container
+# EXEC_MODE=system
 # BIN_DEPS=b2sum;wget
 #########
+
+#########
+# ENV_* #
+#########
+# CONTAINER: if 'true', the environment is a container.
+#########
+
+check() {
+  case "$OS" in
+    debian-* )
+      which_print systemctl
+      ;;
+  esac
+
+  return 0
+}
 
 download() {
   cd "$CACHE_DIR"
@@ -137,25 +153,17 @@ download() {
 
 main() {
   cd "$TMP_DIR"
-  mkdir -p "docker-cli"
 
   if [ "$FORCE" = "false" ] && which docker; then
-    if docker version -f "{{ .Client.Version }}" 2> /dev/null | grep -q "$RELEASE$"; then
-      echo "Docker CLI v$RELEASE is already installed."
+    if dockerd --version | grep -q "version $RELEASE,"; then
+      echo "Docker v$RELEASE is already installed."
       return 0
     fi
   fi
 
   case "$OS" in
     debian* )
-      if [ "$EXEC_MODE" = "system" ]; then
-        run_su dpkg -i "$PACKAGE" || run_su apt-get install -fy
-      else
-        dpkg -x "$PACKAGE" "docker-cli"
-        cd "docker-cli/usr"
-        # shellcheck disable=SC2046
-        cp -af $(ls -A) "$BASEPATH"
-      fi
+      run_su dpkg -i "$PACKAGE" || run_su apt-get install -fy
       ;;
 
     * )
@@ -167,26 +175,12 @@ main() {
   return 0
 }
 
-clean() {
-  case "$STAGE" in
-    main )
-      rm -rf "$TMP_DIR/docker-cli"
-      ;;
-  esac
-
-  return 0
-}
-
 checksum() {
   FILE="$1"
 
   case "$FILE" in
-    docker-ce-cli_18.09.5~3-0~debian-buster_amd64.deb )
-      CHECKSUM="5c3c7688f91a617d64a633d081a6a7ffb23c43292fef37819ad583c785c92c774eb5c0154adadfdce86545bf05898324c08d67c8ee92dc485b809f0215f46fd7"
-      ;;
-
-    docker-ce-cli_19.03.2~3-0~debian-buster_amd64.deb )
-      CHECKSUM="1893bdb9096c1084f3eb5613ee632207b26b11034751fa49cde6c61467dacd807614441e4f7c74b826c582a3c5e4eabc094c48e2ce5f68e25f07d3fdd94959ab"
+    docker-ce_18.09.5~3-0~debian-buster_amd64.deb )
+      CHECKSUM="49a548df57fd844044991957aae4711a27b28cd2fc38c813987c227f10d0fe92f3ceb47ba09dcf803ddf0a8f80dd39fa568a9016ca9769619fa9f6c45616b886"
       ;;
 
     * )
@@ -218,7 +212,7 @@ if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then
 fi
 
 MIRROR="https://download.docker.com/linux"
-PACKAGE="docker-ce-cli_$RELEASE"
+PACKAGE="docker-ce_$RELEASE"
 
 case "$OS" in
   debian* )
