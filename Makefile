@@ -1,3 +1,4 @@
+excluded_warnings := 2230
 binary := pi.sh
 src := $(wildcard src/scripts/*.sh)
 scripts := $(patsubst src/%,%,$(src))
@@ -15,12 +16,12 @@ ci: clean all
 
 $(binary): src/head.sh src/helpers.sh src/$(binary) src/tail.sh
 	cat $^ > $@
-	shellcheck -s sh $@
+	shellcheck -e "$(excluded_warnings)" -s sh $@
 	chmod +x $@
 
 scripts/%.sh: src/scripts_head.sh src/helpers.sh src/scripts/%.sh src/scripts_tail.sh
 	mkdir -p scripts
 	cat $^ > $@
-	shellcheck -s sh $@
+	shellcheck -e "$(excluded_warnings)" -s sh $@
 	chmod +x $@
 

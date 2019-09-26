@@ -70,7 +70,6 @@ get_os() {
       ;;
 
     * )
-      # shellcheck disable=2230
       if which lsb_release; then
         echo "$(lsb_release -si | tr "[:upper:]" "[:lower:]")-$(lsb_release -sr)"
       elif which getprop; then
@@ -108,7 +107,6 @@ which() {
 }
 
 which_print() {
-  # shellcheck disable=2230
   which "$1" || (echo "'$1' not found"; return 1)
   return 0
 }
@@ -140,7 +138,6 @@ download() {
 main() {
   cd "$TMP_DIR"
 
-  # shellcheck disable=2230
   if [ "$FORCE" = "false" ] && which shellcheck; then
     if shellcheck --version | grep -q "version: $RELEASE"; then
       echo "Shellcheck v$RELEASE is already installed."

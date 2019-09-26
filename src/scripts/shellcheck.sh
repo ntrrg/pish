@@ -25,7 +25,6 @@ download() {
 main() {
   cd "$TMP_DIR"
 
-  # shellcheck disable=2230
   if [ "$FORCE" = "false" ] && which shellcheck; then
     if shellcheck --version | grep -q "version: $RELEASE"; then
       echo "Shellcheck v$RELEASE is already installed."

@@ -143,10 +143,8 @@ check_rules() {
   )"
 
   for BIN_DEP in $BIN_DEPS; do
-    # shellcheck disable=2230
     if ! which "$BIN_DEP"; then
       ERRORS="true"
-      # shellcheck disable=2230
       echo "BIN_DEP: $(which_print "$BIN_DEP")"
     fi
   done

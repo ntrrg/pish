@@ -26,7 +26,6 @@ main() {
   cd "$TMP_DIR"
   mkdir -p "docker-cli"
 
-  # shellcheck disable=2230
   if [ "$FORCE" = "false" ] && which docker; then
     if docker version -f "{{ .Client.Version }}" | grep -q "$(echo "$RELEASE" | sed "s/^\(.\+\)~.\+$/\1/")"; then
       echo "Docker CLI v$RELEASE is already installed."
