@@ -85,11 +85,11 @@ get_os() {
 }
 
 run_su() {
-  CMD="su -c"
+  CMD="su -c '%s' -"
   ARGS=""
 
   if [ "$SUDO" = "true" ]; then
-    CMD="sudo"
+    CMD="sudo '%s'"
   fi
 
   while [ $# -ne 0 ]; do
@@ -97,7 +97,8 @@ run_su() {
     shift
   done
 
-  echo "$SU_PASSWD" | eval "$CMD '$ARGS'"
+  # shellcheck disable=2059
+  echo "$SU_PASSWD" | eval "$(printf "$CMD" "cd $PWD && $ARGS")"
   return 0
 }
 
