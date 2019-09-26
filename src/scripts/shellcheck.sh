@@ -28,6 +28,7 @@ main() {
   # shellcheck disable=2230
   if [ "$FORCE" = "false" ] && which shellcheck; then
     if shellcheck --version | grep -q "version: $RELEASE"; then
+      echo "Shellcheck v$RELEASE is already installed."
       return 0
     fi
   fi
