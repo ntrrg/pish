@@ -1,0 +1,8 @@
+# OS=debian-10
+# ARCH=x64_84
+EXEC_MODE=local
+BASEPATH=~/.local
+
+shellcheck#0.7.0
+# docker-cli-v18.09.5~3-0
+
