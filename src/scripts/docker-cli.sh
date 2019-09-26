@@ -27,7 +27,7 @@ main() {
   mkdir -p "docker-cli"
 
   if [ "$FORCE" = "false" ] && which docker; then
-    if docker version -f "{{ .Client.Version }}" | grep -q "$(echo "$RELEASE" | sed "s/^\(.\+\)~.\+$/\1/")"; then
+    if docker version -f "{{ .Client.Version }}" 2> /dev/null | grep -q "$RELEASE$"; then
       echo "Docker CLI v$RELEASE is already installed."
       return 0
     fi

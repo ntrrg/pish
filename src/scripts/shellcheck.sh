@@ -26,7 +26,7 @@ main() {
   cd "$TMP_DIR"
 
   if [ "$FORCE" = "false" ] && which shellcheck; then
-    if shellcheck --version | grep -q "version: $RELEASE"; then
+    if shellcheck --version | grep -q "version: $RELEASE$"; then
       echo "Shellcheck v$RELEASE is already installed."
       return 0
     fi
