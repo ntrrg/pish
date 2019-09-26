@@ -127,6 +127,7 @@ which_print() {
 # ENV_* #
 #########
 # CONTAINER: if 'true', the environment is a container.
+# SERVER: if 'true', the environment is a server.
 #########
 
 check() {
@@ -169,6 +170,14 @@ main() {
       false
       ;;
   esac
+
+  if [ "$ENV_SERVER" != "true" ]; then
+    case "$OS" in
+      debian-* )
+        run_su systemctl stop docker.service
+        ;;
+    esac
+  fi
 
   return 0
 }
