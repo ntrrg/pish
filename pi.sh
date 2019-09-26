@@ -165,82 +165,12 @@ main() {
 
   mkdir -p "$SCRIPTS_DIR"
 
-  TARGET="$1"
-
-  if [ -z "$TARGET" ] || [ "$TARGET" = "-" ]; then
-    TARGET="-"
-  elif [ ! -f "$TARGET" ]; then
-    echo "Can't find '$TARGET'"
-    printf "Downloading from '%s'... " "$TARGETS_MIRROR"
-    download_file "$TARGETS_MIRROR/$TARGET"
-    echo "[DONE]"
+  if [ $# -eq 0 ]; then
+    eval set -- "-"
   fi
 
-  ERRORS="false"
-
-  # shellcheck disable=SC2002 disable=2013
-  for LINE in $(cat "$TARGET" | grep -v "^#" | grep -v "^$"); do
-    if echo "$LINE" | grep -q "="; then
-      NAME="$(echo "$LINE" | cut -d "=" -f 1)"
-      VALUE="$(echo "$LINE" | cut -d "=" -f 2)"
-
-      if [ "$NAME" = "BASEPATH" ] && echo "$VALUE" | grep -q "^\~"; then
-        VALUE="$HOME/$(echo "$VALUE" | sed "s/^\~\///")"
-      fi
-
-      export "$NAME"="$VALUE"
-    else
-      SCRIPTS="$SCRIPTS $LINE"
-      NAME="$LINE"
-      FILE="$SCRIPTS_DIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
-
-      if [ ! -f "$FILE" ]; then
-        echo "Can't find '$FILE'"
-        printf "Downloading from '%s'... " "$SCRIPTS_MIRROR"
-        download_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
-        chmod +x "$FILE"
-        echo "[DONE]"
-      fi
-
-      if [ "$MODES" = "download" ]; then
-        continue
-      fi
-
-      echo "Checking '$NAME'..."
-      check_su_passwd "$FILE"
-      check_rules "$FILE" || ERRORS="true"
-      run_script "$FILE" check
-    fi
-  done
-
-  if [ "$ERRORS" = "true" ]; then
-    return 1
-  fi
-
-  for MODE in $MODES; do
-    echo
-    echo "############################################################"
-    echo
-    echo "Running '$MODE' stage..."
-
-    for SCRIPT in $SCRIPTS; do
-      echo
-      printf "* %s " "$SCRIPT"
-      debug echo
-      RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
-
-      if echo "$SCRIPT" | grep -q "#"; then
-        RELEASE="$(echo "$SCRIPT" | cut -sd '#' -f 2)"
-      elif echo "$SCRIPT" | grep -q "$RE"; then
-        RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
-      else
-        RELEASE="latest"
-      fi
-
-      SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
-      run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
-      debug not echo "[DONE]"
-    done
+  for TARGET in "$@"; do
+    run_target "$TARGET"
   done
 
   return 0
@@ -330,6 +260,88 @@ run_script() {
   STAGE="${2:-all}"
 
   eval "$FILE $STAGE $(debug not printf "> /dev/null 2> /dev/null")"
+  return 0
+}
+
+run_target() {
+  TARGET="$1"
+
+  if [ -z "$TARGET" ] || [ "$TARGET" = "-" ]; then
+    TARGET="-"
+  elif [ ! -f "$TARGET" ]; then
+    echo "Can't find '$TARGET'"
+    printf "Downloading from '%s'... " "$TARGETS_MIRROR"
+    download_file "$TARGETS_MIRROR/$TARGET"
+    echo "[DONE]"
+  fi
+
+  ERRORS="false"
+
+  # shellcheck disable=SC2002 disable=2013
+  for LINE in $(cat "$TARGET" | grep -v "^#" | grep -v "^$"); do
+    if echo "$LINE" | grep -q "="; then
+      NAME="$(echo "$LINE" | cut -d "=" -f 1)"
+      VALUE="$(echo "$LINE" | cut -d "=" -f 2)"
+
+      if [ "$NAME" = "BASEPATH" ] && echo "$VALUE" | grep -q "^\~"; then
+        VALUE="$HOME/$(echo "$VALUE" | sed "s/^\~\///")"
+      fi
+
+      export "$NAME"="$VALUE"
+    else
+      SCRIPTS="$SCRIPTS $LINE"
+      NAME="$LINE"
+      FILE="$SCRIPTS_DIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
+
+      if [ ! -f "$FILE" ]; then
+        echo "Can't find '$FILE'"
+        printf "Downloading from '%s'... " "$SCRIPTS_MIRROR"
+        download_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
+        chmod +x "$FILE"
+        echo "[DONE]"
+      fi
+
+      if [ "$MODES" = "download" ]; then
+        continue
+      fi
+
+      echo "Checking '$NAME'..."
+      check_su_passwd "$FILE"
+      check_rules "$FILE" || ERRORS="true"
+      run_script "$FILE" check
+    fi
+  done
+
+  if [ "$ERRORS" = "true" ]; then
+    return 1
+  fi
+
+  for MODE in $MODES; do
+    echo
+    echo "############################################################"
+    echo
+    echo "Running '$MODE' stage..."
+
+    for SCRIPT in $SCRIPTS; do
+      echo
+      printf "* %s " "$SCRIPT"
+      debug echo
+      RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
+
+      if echo "$SCRIPT" | grep -q "#"; then
+        RELEASE="$(echo "$SCRIPT" | cut -sd '#' -f 2)"
+      elif echo "$SCRIPT" | grep -q "$RE"; then
+        RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
+      else
+        RELEASE="latest"
+      fi
+
+      SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
+      run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
+      debug not echo "[DONE]"
+    done
+  done
+
   return 0
 }
 
