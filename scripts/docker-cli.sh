@@ -203,7 +203,7 @@ checksum() {
 
 get_latest_release() {
   wget -qO - 'https://api.github.com/repos/docker/cli/tags' |
-    grep -v "beta" |
+    grep -v "alpha\|beta" |
     grep -m 1 "name" |
     cut -d '"' -f 4 |
     sed "s/^v//"
