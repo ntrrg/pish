@@ -10,7 +10,7 @@ ENV_GUI=true
 DEBIAN_FRONTEND=noninteractive
 
 # Containers
-# containerd-v1.2.5-1
+containerd#1.2.5-1
 docker#18.09.5
 docker-cli#19.03.2
 
