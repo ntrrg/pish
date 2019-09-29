@@ -255,13 +255,7 @@ check_su_passwd() {
     return 0
   fi
 
-  trap "stty echo" EXIT
-  stty -echo
-  printf "%s" "Root password: "
-  IFS= read -r SU_PASSWD
-  stty echo
-  trap - EXIT
-  echo
+  REQUIRE_SU_PASSWD="true"
   return 0
 }
 
@@ -274,6 +268,7 @@ run_script() {
 }
 
 run_target() {
+  REQUIRE_SU_PASSWD="false"
   SCRIPTS=""
   TARGET="$1"
 
@@ -325,6 +320,16 @@ run_target() {
 
   if [ "$ERRORS" = "true" ]; then
     return 1
+  fi
+
+  if [ "$REQUIRE_SU_PASSWD" = "true" ]; then
+    trap "stty echo" EXIT
+    stty -echo
+    printf "%s" "Root password: "
+    IFS= read -r SU_PASSWD
+    stty echo
+    trap - EXIT
+    echo
   fi
 
   for MODE in $MODES; do
@@ -440,6 +445,7 @@ export SUDO="${SUDO:-false}"
 export SU_PASSWD="$SU_PASSWD"
 export FORCE="${FORCE:-false}"
 
+REQUIRE_SU_PASSWD="false"
 MODES="${MODES:-download main}"
 MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 SCRIPTS_DIR="${SCRIPTS_DIR:-$TMP_DIR}"
