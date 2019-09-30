@@ -93,8 +93,7 @@ checksum() {
 
 get_latest_release() {
   wget -qO - 'https://api.github.com/repos/docker/docker-ce/tags' |
-    grep -v "alpha\|beta" |
-    grep -m 1 "name" |
+    grep -m 1 "tag_name" |
     cut -d '"' -f 4 |
     sed "s/^v//"
 
