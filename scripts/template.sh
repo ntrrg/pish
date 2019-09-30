@@ -8,19 +8,19 @@ trap _clean EXIT
 export STAGE="$1"
 
 check() {
-  return 0
+  true
 }
 
 download() {
-  return 0
+  true
 }
 
 main() {
-  return 0
+  true
 }
 
 clean() {
-  return 0
+  true
 }
 
 _clean() {
@@ -45,8 +45,6 @@ debug() {
   if [ "$DEBUG" = "$VALUE" ]; then
     "$@"
   fi
-
-  return 0
 }
 
 download_file() {
@@ -59,8 +57,6 @@ download_file() {
     rm -f "$FILE"
     return "$ERR"
   )
-
-  return 0
 }
 
 get_os() {
@@ -79,8 +75,6 @@ get_os() {
       fi
       ;;
   esac
-
-  return 0
 }
 
 run_su() {
@@ -98,17 +92,17 @@ run_su() {
 
   # shellcheck disable=2059
   echo "$SU_PASSWD" | eval "$(printf "$CMD" "cd $PWD && $ARGS")"
-  return 0
 }
 
 which() {
   command -v "$1" > /dev/null
-  return 0
 }
 
 which_print() {
-  which "$1" || (echo "'$1' not found"; return 1)
-  return 0
+  if ! which "$1"; then
+    echo "'$1' not found"
+    return 1
+  fi
 }
 
 # Copyright (c) YYYY John Doe
@@ -165,7 +159,6 @@ which_print() {
 check() {
   # This stage checks if the script may be executed in the current environment.
   echo "Checking v$RELEASE..."
-  return 0
 }
 
 download() {
@@ -173,7 +166,6 @@ download() {
   # in CACHE_DIR.
   cd "$CACHE_DIR"
   echo "Downloading v$RELEASE..."
-  return 0
 }
 
 main() {
@@ -185,8 +177,6 @@ main() {
     echo "Template v$RELEASE is already installed."
     return 0
   fi
-
-  return 0
 }
 
 clean() {
@@ -203,8 +193,6 @@ clean() {
       echo "Cleaning after '$STAGE'..."
       ;;
   esac
-
-  return 0
 }
 
 # Optional helpers
@@ -227,8 +215,6 @@ checksum() {
     echo "Invalid checksum for '$FILE'"
     return 1
   fi
-
-  return 0
 }
 
 get_latest_release() {
@@ -258,8 +244,6 @@ get_latest_release() {
     grep -m 1 "name" |
     cut -d '"' -f 4 |
     sed "s/^v//"
-
-  return 0
 }
 
 is_installed() {
@@ -274,6 +258,7 @@ fi
 # Released under the MIT License
 
 if [ $# -eq 0 ] || [ "$1" = "all" ]; then
+  check
   download
   main
 else

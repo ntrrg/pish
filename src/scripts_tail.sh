@@ -2,6 +2,7 @@
 # Released under the MIT License
 
 if [ $# -eq 0 ] || [ "$1" = "all" ]; then
+  check
   download
   main
 else

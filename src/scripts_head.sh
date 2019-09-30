@@ -8,19 +8,19 @@ trap _clean EXIT
 export STAGE="$1"
 
 check() {
-  return 0
+  true
 }
 
 download() {
-  return 0
+  true
 }
 
 main() {
-  return 0
+  true
 }
 
 clean() {
-  return 0
+  true
 }
 
 _clean() {

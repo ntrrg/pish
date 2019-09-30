@@ -7,7 +7,7 @@
 # SUPER_USER=true
 # ENV=!container
 # EXEC_MODE=system
-# BIN_DEPS=b2sum;wget
+# BIN_DEPS=b2sum;containerd;docker;wget
 #########
 
 #########
@@ -20,12 +20,10 @@
 check() {
   case "$OS" in
     debian-* )
-      run_su which_print update-rc.d
+      run_su command -v update-rc.d > /dev/null
       which_print systemctl
       ;;
   esac
-
-  return 0
 }
 
 download() {
@@ -37,7 +35,6 @@ download() {
 
   download_file "$MIRROR/$PACKAGE"
   checksum "$PACKAGE"
-  return 0
 }
 
 main() {
@@ -67,8 +64,6 @@ main() {
         ;;
     esac
   fi
-
-  return 0
 }
 
 checksum() {
@@ -93,8 +88,6 @@ checksum() {
     echo "Invalid checksum for '$FILE'"
     return 1
   fi
-
-  return 0
 }
 
 get_latest_release() {
@@ -102,8 +95,6 @@ get_latest_release() {
     grep -m 1 "tag_name" |
     cut -d '"' -f 4 |
     sed "s/^v//"
-
-  return 0
 }
 
 is_installed() {

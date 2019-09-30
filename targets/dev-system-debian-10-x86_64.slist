@@ -11,6 +11,6 @@ DEBIAN_FRONTEND=noninteractive
 
 # Containers
 containerd#1.2.6-3
-docker#19.03.2
 docker-cli#19.03.2
+docker#19.03.2
 

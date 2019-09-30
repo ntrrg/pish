@@ -9,10 +9,6 @@ main() {
         shift
         ;;
 
-      --atomic )
-        MODES="all"
-        ;;
-
       --cache )
         CACHE_DIR="$2"
         shift
@@ -23,7 +19,7 @@ main() {
         ;;
 
       --download )
-        MODES="download"
+        STAGE="download"
         ;;
 
       -f | --force )
@@ -96,13 +92,11 @@ main() {
     echo
     run_target "$TARGET"
   done
-
-  return 0
 }
 
 check_rules() {
+  CHECK_ERRORS="false"
   FILE="$1"
-  ERRORS="false"
 
   # ENV
 
@@ -121,7 +115,7 @@ check_rules() {
     NAME="ENV_$(echo "$RULE" | tr -d "\!" | tr "[:lower:]" "[:upper:]")"
 
     if ! env | grep -q "^$NAME=$VALUE$"; then
-      ERRORS="true"
+      CHECK_ERRORS="true"
       echo "ENV: broken rule '$RULE'"
       echo "  Want: '$NAME=$VALUE'; Got: '$(env | grep "^$NAME")'"
     fi
@@ -130,30 +124,13 @@ check_rules() {
   # EXEC_MODE
 
   if [ "$EXEC_MODE" = "local" ] && grep -q "^# EXEC_MODE=system" "$FILE"; then
-    ERRORS="true"
+    CHECK_ERRORS="true"
     echo "EXEC_MODE: can't be executed in local mode"
   fi
 
-  # BIN_DEPS
-
-  BIN_DEPS="$(
-    grep "^# BIN_DEPS=" "$FILE" |
-    sed "s/# BIN_DEPS=//" |
-    tr ";" " "
-  )"
-
-  for BIN_DEP in $BIN_DEPS; do
-    if ! which "$BIN_DEP"; then
-      ERRORS="true"
-      echo "BIN_DEP: $(which_print "$BIN_DEP")"
-    fi
-  done
-
-  if [ "$ERRORS" = "true" ]; then
+  if [ "$CHECK_ERRORS" = "true" ]; then
     return 1
   fi
-
-  return 0
 }
 
 check_su_passwd() {
@@ -170,18 +147,36 @@ check_su_passwd() {
   fi
 
   REQUIRE_SU_PASSWD="true"
-  return 0
 }
 
 run_script() {
   FILE="$1"
-  STAGE="${2:-all}"
+
+  if [ "$STAGE" != "download" ]; then
+    SCRIPT_ERRORS="false"
+
+    BIN_DEPS="$(
+      grep "^# BIN_DEPS=" "$FILE" |
+      sed "s/# BIN_DEPS=//" |
+      tr ";" " "
+    )"
+
+    for BIN_DEP in $BIN_DEPS; do
+      if ! which_print "$BIN_DEP"; then
+        SCRIPT_ERRORS="true"
+      fi
+    done
+
+    if [ "$SCRIPT_ERRORS" = "true" ]; then
+      return 1
+    fi
+  fi
 
   eval "$FILE $STAGE $(debug not printf "> /dev/null 2> /dev/null")"
-  return 0
 }
 
 run_target() {
+  TARGET_ERRORS="false"
   REQUIRE_SU_PASSWD="false"
   SCRIPTS=""
   TARGET="$1"
@@ -194,8 +189,6 @@ run_target() {
     download_file "$TARGETS_MIRROR/$TARGET"
     echo "[DONE]"
   fi
-
-  ERRORS="false"
 
   # shellcheck disable=SC2002 disable=2013
   for LINE in $(cat "$TARGET" | grep -v "^#" | grep -v "^$"); do
@@ -221,18 +214,17 @@ run_target() {
         echo "[DONE]"
       fi
 
-      if [ "$MODES" = "download" ]; then
+      if [ "$STAGE" = "download" ]; then
         continue
       fi
 
       echo "Checking '$NAME'..."
       check_su_passwd "$FILE"
-      check_rules "$FILE" || ERRORS="true"
-      run_script "$FILE" check
+      check_rules "$FILE" || TARGET_ERRORS="true"
     fi
   done
 
-  if [ "$ERRORS" = "true" ]; then
+  if [ "$TARGET_ERRORS" = "true" ]; then
     return 1
   fi
 
@@ -246,33 +238,24 @@ run_target() {
     echo
   fi
 
-  for MODE in $MODES; do
+  for SCRIPT in $SCRIPTS; do
     echo
-    echo "############################################################"
-    echo
-    echo "Running '$MODE' stage..."
+    printf "Running '%s'... " "$SCRIPT"
+    debug echo
+    RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
 
-    for SCRIPT in $SCRIPTS; do
-      echo
-      printf "* %s " "$SCRIPT"
-      debug echo
-      RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
+    if echo "$SCRIPT" | grep -q "#"; then
+      RELEASE="$(echo "$SCRIPT" | cut -sd '#' -f 2)"
+    elif echo "$SCRIPT" | grep -q "$RE"; then
+      RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
+    else
+      RELEASE="latest"
+    fi
 
-      if echo "$SCRIPT" | grep -q "#"; then
-        RELEASE="$(echo "$SCRIPT" | cut -sd '#' -f 2)"
-      elif echo "$SCRIPT" | grep -q "$RE"; then
-        RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
-      else
-        RELEASE="latest"
-      fi
-
-      SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
-      run_script "$SCRIPTS_DIR/$SCRIPT.sh" "$MODE"
-      debug not echo "[DONE]"
-    done
+    SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
+    run_script "$SCRIPTS_DIR/$SCRIPT.sh"
+    debug not echo "[DONE]"
   done
-
-  return 0
 }
 
 show_help() {
@@ -288,12 +271,6 @@ script list will be read from the standard input.
 Options:
       --arch=ARCH       Set environment OS architecture to ARCH. Valid values
                         are 'x86_64', 'i686', etc... ($ARCH)
-      --atomic          Run all stages in a single call. By default, scripts
-                        are executed by stages, this means they are executed
-                        three times (one per stage, excluding 'clean'), the
-                        first time, the 'check' stage of every script is
-                        executed, then the 'download' stage of every script and
-                        finally the 'main' stage of every script.
       --cache=PATH      Set the cache directory to find/download the needed
                         files by the scripts. The user must have write
                         permissions. ($CACHE_DIR)
@@ -326,7 +303,7 @@ Script list file syntax:
 
 Scripts syntax:
   * The script must be POSIX compliant.
-  * The script should have at least the 'check', 'main' and 'clean' stages.
+  * The script should have at least the 'main' stage.
   * The script may have custom functions and variables.
   * The script must pass shellcheck.
 
@@ -349,8 +326,6 @@ Environment variables:
 Copyright (c) 2019 Miguel Angel Rivera Notararigo
 Released under the MIT License
 EOF
-
-  return 0
 }
 
 export TMP_DIR="${TMP_DIR:-/tmp}"
@@ -360,7 +335,7 @@ export SU_PASSWD="$SU_PASSWD"
 export FORCE="${FORCE:-false}"
 
 REQUIRE_SU_PASSWD="false"
-MODES="${MODES:-download main}"
+STAGE="all"
 MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 SCRIPTS_DIR="${SCRIPTS_DIR:-$TMP_DIR}"
 SCRIPTS_MIRROR="${SCRIPTS_MIRROR:-$MIRROR/scripts}"

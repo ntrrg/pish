@@ -52,7 +52,6 @@
 check() {
   # This stage checks if the script may be executed in the current environment.
   echo "Checking v$RELEASE..."
-  return 0
 }
 
 download() {
@@ -60,7 +59,6 @@ download() {
   # in CACHE_DIR.
   cd "$CACHE_DIR"
   echo "Downloading v$RELEASE..."
-  return 0
 }
 
 main() {
@@ -72,8 +70,6 @@ main() {
     echo "Template v$RELEASE is already installed."
     return 0
   fi
-
-  return 0
 }
 
 clean() {
@@ -90,8 +86,6 @@ clean() {
       echo "Cleaning after '$STAGE'..."
       ;;
   esac
-
-  return 0
 }
 
 # Optional helpers
@@ -114,8 +108,6 @@ checksum() {
     echo "Invalid checksum for '$FILE'"
     return 1
   fi
-
-  return 0
 }
 
 get_latest_release() {
@@ -145,8 +137,6 @@ get_latest_release() {
     grep -m 1 "name" |
     cut -d '"' -f 4 |
     sed "s/^v//"
-
-  return 0
 }
 
 is_installed() {

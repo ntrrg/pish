@@ -19,7 +19,6 @@ download() {
 
   download_file "https://storage.googleapis.com/shellcheck/$PACKAGE"
   checksum "$PACKAGE"
-  return 0
 }
 
 main() {
@@ -32,7 +31,6 @@ main() {
 
   tar --strip-components 1 --exclude "*.txt" \
     -C "$BASEPATH/bin" -xpf "$CACHE_DIR/$PACKAGE"
-  return 0
 }
 
 # Helpers
@@ -59,8 +57,6 @@ checksum() {
     echo "Invalid checksum for '$FILE'"
     return 1
   fi
-
-  return 0
 }
 
 get_latest_release() {
@@ -68,8 +64,6 @@ get_latest_release() {
     grep -m 1 "name" |
     cut -d '"' -f 4 |
     sed "s/^v//"
-
-  return 0
 }
 
 is_installed() {

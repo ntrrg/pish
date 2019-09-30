@@ -12,8 +12,6 @@ debug() {
   if [ "$DEBUG" = "$VALUE" ]; then
     "$@"
   fi
-
-  return 0
 }
 
 download_file() {
@@ -26,8 +24,6 @@ download_file() {
     rm -f "$FILE"
     return "$ERR"
   )
-
-  return 0
 }
 
 get_os() {
@@ -46,8 +42,6 @@ get_os() {
       fi
       ;;
   esac
-
-  return 0
 }
 
 run_su() {
@@ -65,16 +59,16 @@ run_su() {
 
   # shellcheck disable=2059
   echo "$SU_PASSWD" | eval "$(printf "$CMD" "cd $PWD && $ARGS")"
-  return 0
 }
 
 which() {
   command -v "$1" > /dev/null
-  return 0
 }
 
 which_print() {
-  which "$1" || (echo "'$1' not found"; return 1)
-  return 0
+  if ! which "$1"; then
+    echo "'$1' not found"
+    return 1
+  fi
 }
 
