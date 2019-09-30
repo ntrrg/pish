@@ -20,6 +20,7 @@
 check() {
   case "$OS" in
     debian-* )
+      run_su which_print update-rc.d
       which_print systemctl
       ;;
   esac
@@ -61,6 +62,7 @@ main() {
   if [ "$ENV_SERVER" != "true" ]; then
     case "$OS" in
       debian-* )
+        run_su update-rc.d docker remove
         run_su systemctl stop docker.service
         ;;
     esac
