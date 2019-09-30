@@ -77,6 +77,10 @@ checksum() {
       CHECKSUM="49a548df57fd844044991957aae4711a27b28cd2fc38c813987c227f10d0fe92f3ceb47ba09dcf803ddf0a8f80dd39fa568a9016ca9769619fa9f6c45616b886"
       ;;
 
+    docker-ce_19.03.2~3-0~debian-buster_amd64.deb )
+      CHECKSUM="9b6c0baa5ef3d273a19942005776fc76505f78a314904225fc507af0dbb3f66c57437c0247c77bfc461ed449e89e2df6d6bd218872005cea868f4d64b932c22b"
+      ;;
+
     * )
       echo "Invalid file '$FILE'"
       return 1
