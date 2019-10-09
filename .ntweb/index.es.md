@@ -1,6 +1,6 @@
 ---
 title: pish
-description: Un conjunto de paquetes Go.
+description: Replicador de entornos.
 metadata:
   source-code: https://github.com/ntrrg/pish
   license: MIT

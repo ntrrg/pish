@@ -1,6 +1,6 @@
 ---
 title: pish
-description: A post installation scripts runner.
+description: Environments replicator.
 metadata:
   source-code: https://github.com/ntrrg/pish
   license: MIT
