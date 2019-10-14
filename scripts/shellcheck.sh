@@ -47,16 +47,30 @@ debug() {
   fi
 }
 
+deb_deps() {
+  apt-cache depends \
+    --recurse --no-recommends --no-suggests --no-conflicts \
+    --no-breaks --no-replaces --no-enhances -qq "$@" |
+  tr -d " " |
+  sed "s/\(Pre\)\?Depends://" |
+  grep "^\w" |
+  sort -u
+}
+
 download_file() {
   URL="$1"
   FILE="${2:-$(basename "$URL")}"
 
-  wget -"$(debug not echo "q")"O "$FILE" "$URL" || (
+  wget "$(debug not echo "-q")" -O "$FILE" "$URL" || (
     ERR="$?"
     echo "[FAIL]"
-    rm -f "$FILE"
+    ([ "$FILE" != "-" ] && rm -f "$FILE") || true
     return "$ERR"
   )
+}
+
+download_file_quiet() {
+  DEBUG="false" download_file "$@"
 }
 
 get_os() {
