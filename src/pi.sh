@@ -9,6 +9,11 @@ main() {
         shift
         ;;
 
+      -C | --base )
+        BASEPATH="$2"
+        shift
+        ;;
+
       --cache )
         CACHE_DIR="$2"
         shift
@@ -29,6 +34,11 @@ main() {
       -h | --help )
         show_help
         return
+        ;;
+
+      -m | --mode )
+        EXEC_MODE="$2"
+        shift
         ;;
 
       --mirror )
@@ -271,6 +281,8 @@ script list will be read from the standard input.
 Options:
       --arch=ARCH       Set environment OS architecture to ARCH. Valid values
                         are 'x86_64', 'i686', etc... ($ARCH)
+  -C, --base=PATH       Set installation path to PATH. Usual values are
+                        '/', '/usr' and '~/.local'. ($BASEPATH)
       --cache=PATH      Set the cache directory to find/download the needed
                         files by the scripts. The user must have write
                         permissions. ($CACHE_DIR)
@@ -278,6 +290,8 @@ Options:
   -D, --download        Just run the download stage of every script.
   -f, --force           Run the scripts even if they can be skipped.
   -h, --help            Show this help message.
+  -m, --mode=MODE       Set the execution mode to MODE. Valid values are
+                        'local' and 'system'. ($EXEC_MODE)
       --mirror=URL      Use URL as base mirror for targets and scripts.
                         ($MIRROR)
       --smirror=URL     Use URL as scripts mirror when some script can't be
@@ -311,8 +325,10 @@ Scripts syntax:
 
 Environment variables:
   * 'ARCH': behaves as the '--arch' flag.
+  * 'BASEPATH': behaves as the '-C, --base' flag.
   * 'CACHE_DIR': behaves as the '--cache' flag.
   * 'DEBUG': behaves as the '--debug' flag.
+  * 'EXEC_MODE': behaves as the '-m, --mode' flag.
   * 'FORCE': behaves as the '-f, --force' flag.
   * 'MIRROR': behaves as the '--mirror' flag.
   * 'OS': behaves as the '--os' flag.
