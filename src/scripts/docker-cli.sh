@@ -33,7 +33,7 @@ main() {
   case "$OS" in
     debian* )
       if [ "$EXEC_MODE" = "system" ]; then
-        run_su dpkg -i "$PACKAGE" || run_su apt-get install -fy
+        run_su dpkg -i "$PACKAGE"
       else
         dpkg -x "$PACKAGE" "docker-cli"
         cd "docker-cli/usr"
@@ -43,7 +43,7 @@ main() {
       ;;
 
     * )
-      echo "Unsupported os '$OS'"
+      echo "Unsupported OS '$OS'"
       false
       ;;
   esac
@@ -141,7 +141,7 @@ case "$OS" in
     ;;
 
   * )
-    echo "Unsupported os '$OS'"
+    echo "Unsupported OS '$OS'"
     false
     ;;
 esac
