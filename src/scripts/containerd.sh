@@ -46,11 +46,11 @@ main() {
 
   case "$OS" in
     debian* )
-      run_su dpkg -i "$PACKAGE" || run_su apt-get install -fy
+      run_su dpkg -i "$PACKAGE"
       ;;
 
     * )
-      echo "Unsupported os '$OS'"
+      echo "Unsupported OS '$OS'"
       false
       ;;
   esac
@@ -145,7 +145,7 @@ case "$OS" in
     ;;
 
   * )
-    echo "Unsupported os '$OS'"
+    echo "Unsupported OS '$OS'"
     false
     ;;
 esac
