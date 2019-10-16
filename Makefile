@@ -1,4 +1,3 @@
-excluded_warnings := 2230
 binary := dist/pi.sh
 
 src := $(wildcard src/scripts/*.sh)
@@ -16,15 +15,6 @@ build: $(targets) $(binary) $(scripts)
 clean:
 	rm -rf dist/
 
-# Development
-
-.PHONY: ci
-ci: clean all lint
-
-.PHONY: lint
-lint:
-	shellcheck -e "$(excluded_warnings)" -s sh $$(find dist/ -type f -name "*.sh")
-
 $(binary): src/head.sh src/helpers.sh src/$(notdir $(binary)) src/tail.sh
 	mkdir -p $(dir $@)
 	cat $^ > $@
@@ -38,4 +28,15 @@ dist/scripts/%.sh: src/scripts_head.sh src/helpers.sh src/scripts/%.sh src/scrip
 dist/targets/%.slist: src/targets/%.slist
 	mkdir -p $(dir $@)
 	cp $< $@
+
+# Development
+
+excluded_warnings := 2230
+
+.PHONY: ci
+ci: clean all lint
+
+.PHONY: lint
+lint:
+	shellcheck -e "$(excluded_warnings)" -s sh $$(find dist/ -type f -name "*.sh")
 
