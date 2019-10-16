@@ -59,6 +59,7 @@ main() {
     case "$OS" in
       debian-* )
         run_su systemctl stop containerd.service
+        run_su systemctl disable containerd.service
         ;;
     esac
   fi
