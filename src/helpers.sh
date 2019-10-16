@@ -18,7 +18,7 @@ download_file() {
   URL="$1"
   FILE="${2:-$(basename "$URL")}"
 
-  wget "$(debug not echo "-q")" -O "$FILE" "$URL" || (
+  wget -"$(debug not printf "q")"O "$FILE" "$URL" || (
     ERR="$?"
     echo "[FAIL]"
     ([ "$FILE" != "-" ] && rm -f "$FILE") || true

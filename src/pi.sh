@@ -248,8 +248,10 @@ run_target() {
     echo
   fi
 
+  echo
+
   for SCRIPT in $SCRIPTS; do
-    echo
+    debug echo
     printf "Running '%s'... " "$SCRIPT"
     debug echo
     RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
