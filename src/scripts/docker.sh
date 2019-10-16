@@ -61,6 +61,7 @@ main() {
       debian-* )
         run_su update-rc.d docker remove
         run_su systemctl stop docker.service
+        run_su systemctl disable docker.service
         ;;
     esac
   fi
