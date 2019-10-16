@@ -4,12 +4,14 @@
 #     requires super-user privileges.
 #   * 'BASEPATH': is the installation path for packages. Usually it is '/usr'
 #     for 'system' mode and '~/.local' for 'local' mode.
+#   * 'PKGS_MIRROR': is the mirror from the scripts should download its files.
 #   * 'ENV_*': are special boolean variables that may be used for controlling
 #     the scripts flow. See the 'ENV' rule from every script to see their
 #     requirements.
 
 EXEC_MODE=local
 BASEPATH=~/.local
+# PKGS_MIRROR=https://s6.nt.web.ve/software/linux
 
 ENV_TEMPLATE=true
 

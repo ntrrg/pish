@@ -46,6 +46,7 @@
 #   * 'RELEASE': is the package release to setup.
 #   * 'EXEC_MODE': is the current execution mode.
 #   * 'BASEPATH': is the installation path for packages.
+#   * 'PKGS_MIRROR': if defined, the script should download its files from it.
 
 # Any returned value different than 0 means failure.
 
@@ -59,6 +60,7 @@ download() {
   # in CACHE_DIR.
   cd "$CACHE_DIR"
   echo "Downloading v$RELEASE..."
+  # download_file "${PKGS_MIRROR:-$MIRROR}/$PACKAGE"
 }
 
 main() {
@@ -146,4 +148,7 @@ is_installed() {
 if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then
   RELEASE="$(get_latest_release)"
 fi
+
+MIRROR="https://s6.nt.web.ve/software/linux"
+PACKAGE="test-v$RELEASE.linux.$ARCH.tar.xz"
 
