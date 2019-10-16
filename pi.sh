@@ -20,21 +20,11 @@ debug() {
   fi
 }
 
-deb_deps() {
-  apt-cache depends \
-    --recurse --no-recommends --no-suggests --no-conflicts \
-    --no-breaks --no-replaces --no-enhances -qq "$@" |
-  tr -d " " |
-  sed "s/\(Pre\)\?Depends://" |
-  grep "^\w" |
-  sort -u
-}
-
 download_file() {
   URL="$1"
   FILE="${2:-$(basename "$URL")}"
 
-  wget "$(debug not echo "-q")" -O "$FILE" "$URL" || (
+  wget -"$(debug not printf "q")"O "$FILE" "$URL" || (
     ERR="$?"
     echo "[FAIL]"
     ([ "$FILE" != "-" ] && rm -f "$FILE") || true
@@ -342,8 +332,10 @@ run_target() {
     echo
   fi
 
+  echo
+
   for SCRIPT in $SCRIPTS; do
-    echo
+    debug echo
     printf "Running '%s'... " "$SCRIPT"
     debug echo
     RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
