@@ -19,18 +19,20 @@ clean:
 # Development
 
 .PHONY: ci
-ci: clean all
+ci: clean all lint
+
+.PHONY: lint
+lint: $(shell find dist/ -type f -name "*.sh")
+	shellcheck -e "$(excluded_warnings)" -s sh $^
 
 $(binary): src/head.sh src/helpers.sh src/$(notdir $(binary)) src/tail.sh
 	mkdir -p $(dir $@)
 	cat $^ > $@
-	shellcheck -e "$(excluded_warnings)" -s sh $@
 	chmod +x $@
 
 dist/scripts/%.sh: src/scripts_head.sh src/helpers.sh src/scripts/%.sh src/scripts_tail.sh
 	mkdir -p $(dir $@)
 	cat $^ > $@
-	shellcheck -e "$(excluded_warnings)" -s sh $@
 	chmod +x $@
 
 dist/targets/%.slist: src/targets/%.slist
