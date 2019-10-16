@@ -5,4 +5,5 @@ nogit-*
 .DS_Store
 .screenrc
 *~
+/dist/
 
