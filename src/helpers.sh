@@ -23,11 +23,11 @@ download_file() {
     return 0
   fi
 
-  if [ -f "$FILE" ] && checksum "$FILE"; then
+  if [ -f "$FILE" ] && checksum "$FILE" > /dev/null; then
     return 0
   fi
 
-  wget -"$(debug not printf "q")"O "$FILE" "$URL" || true
+  wget -"$(debug not printf "q")"cO "$FILE" "$URL" || true
   checksum "$FILE"
 }
 
