@@ -22,8 +22,8 @@ clean:
 ci: clean all lint
 
 .PHONY: lint
-lint: $(shell find dist/ -type f -name "*.sh")
-	shellcheck -e "$(excluded_warnings)" -s sh $^
+lint:
+	shellcheck -e "$(excluded_warnings)" -s sh $$(find dist/ -type f -name "*.sh")
 
 $(binary): src/head.sh src/helpers.sh src/$(notdir $(binary)) src/tail.sh
 	mkdir -p $(dir $@)
