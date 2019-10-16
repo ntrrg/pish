@@ -18,12 +18,17 @@ download_file() {
   URL="$1"
   FILE="${2:-$(basename "$URL")}"
 
-  wget -"$(debug not printf "q")"O "$FILE" "$URL" || (
-    ERR="$?"
-    echo "[FAIL]"
-    ([ "$FILE" != "-" ] && rm -f "$FILE") || true
-    return "$ERR"
-  )
+  if [ "$FILE" = "-" ]; then
+    wget -qO - "$URL"
+    return 0
+  fi
+
+  if [ -f "$FILE" ] && checksum "$FILE"; then
+    return 0
+  fi
+
+  wget -"$(debug not printf "q")"O "$FILE" "$URL" || true
+  checksum "$FILE"
 }
 
 download_file_quiet() {
