@@ -1,16 +1,12 @@
 binary := dist/pi.sh
-
-src := $(wildcard src/scripts/*.sh)
-scripts := $(patsubst src/%,dist/%,$(src))
-
-trg := $(wildcard src/targets/*.slist)
-targets := $(patsubst src/%,dist/%,$(trg))
+scripts := $(patsubst src/%,dist/%,$(wildcard src/scripts/*.sh))
+targets := $(patsubst src/%,dist/%,$(wildcard src/targets/*.slist))
 
 .PHONY: all
 all: build
 
 .PHONY: build
-build: $(targets) $(binary) $(scripts)
+build: $(binary) $(targets) $(scripts)
 
 clean:
 	rm -rf dist/
