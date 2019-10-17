@@ -64,3 +64,5 @@ Trabando en este proyecto usamos:
 
 * [Termux](https://termux.com)
 
+* [Netlify](https://www.netlify.com/)
+
