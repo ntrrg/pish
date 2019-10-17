@@ -60,6 +60,7 @@ download() {
   # in CACHE_DIR.
   cd "$CACHE_DIR"
   echo "Downloading v$RELEASE..."
+  echo "  From: ${PKGS_MIRROR:-$MIRROR}/$PACKAGE"
   # download_file "${PKGS_MIRROR:-$MIRROR}/$PACKAGE"
 }
 
