@@ -9,11 +9,6 @@ main() {
         shift
         ;;
 
-      -C | --base )
-        BASEPATH="$2"
-        shift
-        ;;
-
       --cache )
         CACHE_DIR="$2"
         shift
@@ -56,6 +51,10 @@ main() {
         shift
         ;;
 
+      --no-checksum )
+        NOCHECKSUM="true"
+        ;;
+
       --os )
         OS="$2"
         shift
@@ -63,6 +62,11 @@ main() {
 
       -P | --passwd )
         SU_PASSWD="$2"
+        shift
+        ;;
+
+      --root )
+        BASEPATH="$2"
         shift
         ;;
 
@@ -161,28 +165,32 @@ check_su_passwd() {
 
 run_script() {
   FILE="$1"
+  RUN_STAGE="${2:-$STAGE}"
 
-  if [ "$STAGE" != "download" ]; then
-    SCRIPT_ERRORS="false"
-
-    BIN_DEPS="$(
-      grep "^# BIN_DEPS=" "$FILE" |
-      sed "s/# BIN_DEPS=//" |
-      tr ";" " "
-    )"
-
-    for BIN_DEP in $BIN_DEPS; do
-      if ! which_print "$BIN_DEP"; then
-        SCRIPT_ERRORS="true"
-      fi
-    done
-
-    if [ "$SCRIPT_ERRORS" = "true" ]; then
-      return 1
-    fi
+  if [ "$RUN_STAGE" != "all" ]; then
+    eval "$FILE $RUN_STAGE $(debug not printf "> /dev/null 2> /dev/null")"
+    return 0
   fi
 
-  eval "$FILE $STAGE $(debug not printf "> /dev/null 2> /dev/null")"
+  SCRIPT_ERRORS="false"
+
+  BIN_DEPS="$(
+    grep "^# BIN_DEPS=" "$FILE" |
+    sed "s/# BIN_DEPS=//" |
+    tr ";" " "
+  )"
+
+  for BIN_DEP in $BIN_DEPS; do
+    if ! which_print "$BIN_DEP"; then
+      SCRIPT_ERRORS="true"
+    fi
+  done
+
+  if [ "$SCRIPT_ERRORS" = "true" ]; then
+    return 1
+  fi
+
+  eval "$FILE $RUN_STAGE $(debug not printf "> /dev/null 2> /dev/null")"
 }
 
 run_target() {
@@ -253,18 +261,24 @@ run_target() {
   for SCRIPT in $SCRIPTS; do
     debug echo
     printf "Running '%s'... " "$SCRIPT"
-    debug echo
-    RE="^.\+-v\([[:digit:]]\+\(\.[[:digit:]]\+\)*\)$"
 
-    if echo "$SCRIPT" | grep -q "#"; then
-      RELEASE="$(echo "$SCRIPT" | cut -sd '#' -f 2)"
-    elif echo "$SCRIPT" | grep -q "$RE"; then
-      RELEASE="$(echo "$SCRIPT" | sed "s/$RE/\1/")"
+    RE="^.\+-v\([0-9]\+\(\.[0-9]\+\)*\)$"
+    RELEASE="$SCRIPT"
+    SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
+
+    if echo "$RELEASE" | grep -q "#"; then
+      RELEASE="$(echo "$RELEASE" | cut -sd '#' -f 2)"
+    elif echo "$RELEASE" | grep -q "$RE"; then
+      RELEASE="$(echo "$RELEASE" | sed "s/$RE/\1/")"
     else
-      RELEASE="latest"
+      RELEASE="$(
+        DEBUG="true" run_script "$SCRIPTS_DIR/$SCRIPT.sh" get_latest_release
+      )"
+
+      printf "(v%s) " "$RELEASE"
     fi
 
-    SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
+    debug echo
     run_script "$SCRIPTS_DIR/$SCRIPT.sh"
     debug not echo "[DONE]"
   done
@@ -283,8 +297,6 @@ script list will be read from the standard input.
 Options:
       --arch=ARCH       Set environment OS architecture to ARCH. Valid values
                         are 'x86_64', 'i686', etc... ($ARCH)
-  -C, --base=PATH       Set installation path to PATH. Usual values are
-                        '/', '/usr' and '~/.local'. ($BASEPATH)
       --cache=PATH      Set the cache directory to find/download the needed
                         files by the scripts. The user must have write
                         permissions. ($CACHE_DIR)
@@ -293,16 +305,19 @@ Options:
   -f, --force           Run the scripts even if they can be skipped.
   -h, --help            Show this help message.
   -m, --mode=MODE       Set the execution mode to MODE. Valid values are
-                        'local' and 'system'. ($EXEC_MODE)
+                        'local' or 'system'. ($EXEC_MODE)
       --mirror=URL      Use URL as base mirror for targets and scripts.
                         ($MIRROR)
       --smirror=URL     Use URL as scripts mirror when some script can't be
                         found locally. ($SCRIPTS_MIRROR)
       --tmirror=URL     Use URL as targets mirror when some target can't be
                         found locally. ($TARGETS_MIRROR)
+      --no-checksum     Disable files checksum comprobation.
       --os=OS           Set environment OS to OS. Valid values are 'debian-10',
                         'android-9', etc... ($OS)
   -P, --passwd=PASSWD   Use PASSWD as super-user password.
+      --root=PATH       Set installation path to PATH. Usual values are
+                        '/', '/usr' and '~/.local'. ($BASEPATH)
       --scripts=PATH    Use PATH as scripts directory. ($SCRIPTS_DIR)
       --sudo            Use 'sudo' for running super-user commands.
       --temp=PATH       Use PATH as temporal filesystem. The user must have
@@ -327,12 +342,13 @@ Scripts syntax:
 
 Environment variables:
   * 'ARCH': behaves as the '--arch' flag.
-  * 'BASEPATH': behaves as the '-C, --base' flag.
+  * 'BASEPATH': behaves as the '--root' flag.
   * 'CACHE_DIR': behaves as the '--cache' flag.
   * 'DEBUG': behaves as the '--debug' flag.
   * 'EXEC_MODE': behaves as the '-m, --mode' flag.
   * 'FORCE': behaves as the '-f, --force' flag.
   * 'MIRROR': behaves as the '--mirror' flag.
+  * 'NOCHECKSUM': behaves as the '--no-checksum' flag.
   * 'OS': behaves as the '--os' flag.
   * 'SCRIPTS_DIR': behaves as the '--scripts' flag.
   * 'SCRIPTS_MIRROR': behaves as the '--smirror' flag.
@@ -351,6 +367,8 @@ export CACHE_DIR="${CACHE_DIR:-$TMP_DIR}"
 export SUDO="${SUDO:-false}"
 export SU_PASSWD="$SU_PASSWD"
 export FORCE="${FORCE:-false}"
+export NOCHECKSUM="${NOCHECKSUM:-false}"
+export DEBUG="${DEBUG:-false}"
 
 REQUIRE_SU_PASSWD="false"
 STAGE="all"
@@ -364,5 +382,4 @@ export ARCH="${ARCH:-$(uname -m)}"
 export EXEC_MODE="${EXEC_MODE:-local}"
 export BASEPATH="${BASEPATH:-~/.local}"
 export RELEASE
-export DEBUG="${DEBUG:-false}"
 

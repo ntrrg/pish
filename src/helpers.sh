@@ -1,6 +1,25 @@
 # Copyright (c) 2019 Miguel Angel Rivera Notararigo
 # Released under the MIT License
 
+checksum() {
+  # shellcheck disable=SC2153
+  [ "$NOCHECKSUM" = "true" ] && return 0
+  FILE="$1"
+  CHECKSUM="$(get_checksum "$FILE")"
+
+  if [ -z "$CHECKSUM" ]; then
+    echo "Invalid file '$FILE'"
+    return 1
+  fi
+
+  if ! b2sum "$FILE" | grep -q "$CHECKSUM"; then
+    echo "Invalid checksum for '$FILE'"
+    echo "  Want: $CHECKSUM"
+    echo "  Got: $(b2sum "$FILE")"
+    return 1
+  fi
+}
+
 debug() {
   VALUE="true"
 
@@ -27,12 +46,30 @@ download_file() {
     return 0
   fi
 
-  wget -"$(debug not printf "q")"cO "$FILE" "$URL" || true
+  wget -"$(debug not printf "q")"cO "$FILE" "$URL"
   checksum "$FILE"
 }
 
-download_file_quiet() {
-  DEBUG="false" download_file "$@"
+get_latest_github_release() {
+  wget -qO - "https://api.github.com/repos/$1/releases/latest" |
+    grep -m 1 "tag_name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
+}
+
+get_latest_github_tag() {
+  wget -qO - "https://api.github.com/repos/$1/tags" |
+    grep -v "\-\(alpha\|beta\|rc\)[0-9]*\",$" |
+    grep -m 1 "name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
+}
+
+get_latest_github_tag_all() {
+  wget -qO - "https://api.github.com/repos/$1/tags" |
+    grep -m 1 "name" |
+    cut -d '"' -f 4 |
+    sed "s/^v//"
 }
 
 get_os() {

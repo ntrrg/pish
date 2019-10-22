@@ -18,8 +18,6 @@
 #########
 
 main() {
-  cd "$TMP_DIR"
-
   case "$OS" in
     debian* )
       case "$OS" in

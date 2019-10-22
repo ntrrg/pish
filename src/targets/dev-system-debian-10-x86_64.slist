@@ -12,9 +12,9 @@ DEBIAN_FRONTEND=noninteractive
 debian-basics
 
 # Containers
-containerd#1.2.6-3
+docker-containerd#1.2.6-3
 docker-cli#19.03.2
-docker#19.03.2
+docker-ce#19.03.2
 
 debian-cleaning
 

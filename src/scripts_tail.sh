@@ -3,8 +3,8 @@
 
 if [ $# -eq 0 ] || [ "$1" = "all" ]; then
   check
-  download
-  main
+  _download
+  _main
 else
   $1
 fi

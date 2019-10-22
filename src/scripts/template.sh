@@ -22,31 +22,33 @@
 #########
 # SUPER_USER=false
 # EXEC_MODE=local
-# BIN_DEPS=b2sum;wget
+# BIN_DEPS=cd;ls
 # ENV=template
 #########
 
 #########
 # ENV_* #
 #########
-# KEY: this section is intended for explaning the used ENV_* variables.
+# KEY: this section is intended for explaining the used ENV_* variables.
 # GUI: if 'true', the environment supports GUI.
 # CONTAINER: if 'true', the environment is a container.
 # HARDWARE: if 'true, the environment has access to the hardware.
 #########
 
-# Environment variables:
-#   * 'STAGE': is the current stage.
-#   * 'SU_PASSWD': contains the root password.
-#   * 'FORCE': if 'true', all the instructions must be executed.
-#   * 'CACHE_DIR': is the directory where the script should download its files.
-#   * 'TMP_DIR': is the temporal filesystem directory.
-#   * 'OS': is the current OS.
-#   * 'ARCH': is the current OS architecture.
-#   * 'RELEASE': is the package release to setup.
-#   * 'EXEC_MODE': is the current execution mode.
-#   * 'BASEPATH': is the installation path for packages.
-#   * 'PKGS_MIRROR': if defined, the script should download its files from it.
+#################################
+# Default environment variables #
+#################################
+# * 'STAGE': is the current stage.
+# * 'SU_PASSWD': contains the root password.
+# * 'FORCE': if 'true', all the instructions must be executed.
+# * 'CACHE_DIR': is the directory where the script should download its files.
+# * 'TMP_DIR': is the temporary filesystem directory.
+# * 'OS': is the current OS.
+# * 'ARCH': is the current OS architecture.
+# * 'RELEASE': is the package release to setup.
+# * 'EXEC_MODE': is the current execution mode.
+# * 'BASEPATH': is the installation path for packages.
+# * 'PKG_MIRROR': if defined, the script should download its files from it.
 
 # Any returned value different than 0 means failure.
 
@@ -56,23 +58,20 @@ check() {
 }
 
 download() {
-  # This stage downloads all the needed files by the script. Any should be done
-  # in CACHE_DIR.
-  cd "$CACHE_DIR"
+  # This stage downloads all the needed files by the script.
   echo "Downloading v$RELEASE..."
-  echo "  From: ${PKGS_MIRROR:-$MIRROR}/$PACKAGE"
-  # download_file "${PKGS_MIRROR:-$MIRROR}/$PACKAGE"
+  # download_file "$MIRROR/${$ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
+  # download_file "$PKG_MIRROR/$PACKAGE"
 }
 
 main() {
   # This stage executes the main code of the script.
-  cd "$TMP_DIR"
-  echo "Running v$RELEASE..."
 
-  if [ "$FORCE" = "false" ] && is_installed; then
-    echo "Template v$RELEASE is already installed."
-    return 0
-  fi
+  # By default, the working directory is the packages directory ($CACHE_DIR),
+  # do all the dirty stuff in the temporary filesystem ($TMP_DIR).
+  # cd "$TMP_DIR"
+
+  echo "Running v$RELEASE..."
 }
 
 clean() {
@@ -91,26 +90,17 @@ clean() {
   esac
 }
 
-# Optional helpers
+####################
+# Optional helpers #
+####################
 
-checksum() {
-  FILE="$1"
-
-  case "$FILE" in
+# This one is mandatory for downloading files.
+get_checksum() {
+  case "$1" in
     my-package.tar.gz )
-      CHECKSUM="30f4cfacdf9024a4f4c8233842f40a6027069e81cf5529f2441b22856773abcd716ee92d2303ad3cda5eaeecac3161e5980c0eedeb4ffa077d5c15c7f356512e"
-      ;;
-
-    * )
-      echo "Invalid file '$FILE'"
-      return 1
+      echo "30f4cfacdf9024a4f4c8233842f40a6027069e81cf5529f2441b22856773abcd716ee92d2303ad3cda5eaeecac3161e5980c0eedeb4ffa077d5c15c7f356512e"
       ;;
   esac
-
-  if ! b2sum "$FILE" | grep -q "$CHECKSUM"; then
-    echo "Invalid checksum for '$FILE'"
-    return 1
-  fi
 }
 
 get_latest_release() {
@@ -118,38 +108,44 @@ get_latest_release() {
   return 0
 
   # Example for Go
-  wget -qO - 'https://golang.org/dl/?mode=json' |
+  wget -qO - "https://golang.org/dl/?mode=json" |
     grep -m 1 "version" |
     cut -d '"' -f 4 |
     sed "s/go//"
 
   # Example for Node.js
-  wget -qO - 'https://nodejs.org/en/download/current/' |
+  wget -qO - "https://nodejs.org/en/download/current/" |
     grep -m 1 "Latest Current Version: " |
     cut -d '>' -f 3 |
     sed "s/<\/strong//"
 
   # Example for GitHub latest release
-  wget -qO - 'https://api.github.com/repos/ntrrg/ntdocutils/releases/latest' |
-    grep -m 1 "tag_name" |
-    cut -d '"' -f 4 |
-    sed "s/^v//"
+  get_latest_github_release "ntrrg/ntdocutils"
 
-  # Example for GitHub latest tag
-  wget -qO - 'https://api.github.com/repos/koalaman/shellcheck/tags' |
-    grep -m 1 "name" |
-    cut -d '"' -f 4 |
-    sed "s/^v//"
+  # Example for GitHub latest stable tag
+  get_latest_github_tag "docker/cli"
+
+  # Example for GitHub latest tag (including alpha, beta and rc releases)
+  get_latest_github_tag_all "koalaman/shellcheck"
 }
 
 is_installed() {
   return 1
 }
 
-if [ -z "$RELEASE" ] || [ "$RELEASE" = "latest" ]; then
-  RELEASE="$(get_latest_release)"
-fi
+################################
+# Custom environment variables #
+################################
 
-MIRROR="https://s6.nt.web.ve/software/linux"
-PACKAGE="test-v$RELEASE.linux.$ARCH.tar.xz"
+# If there is no download stage and this two environment variables are defined,
+# 'download_file "$MIRROR/$PACKAGE"' will be called.
+#
+# MIRROR="https://s6.nt.web.ve/software/linux"
+# PACKAGE="test-v$RELEASE-$OS-$ARCH.tar.gz"
+#
+# If the original file has a different name than the stored package, set the
+# 'ORIGIN_PKG' variable and 'download_file "$MIRROR/$ORIGIN_PKG" "$PACKAGE"'
+# will be called.
+#
+# ORIGIN_PKG="test-v$RELEASE.linux.$ARCH.tar.gz"
 
