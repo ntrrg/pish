@@ -44,18 +44,6 @@ main() {
   fi
 }
 
-get_checksum() {
-  case "$1" in
-    docker-ce-v19.03.2-debian-10-x86_64.deb )
-      echo "9b6c0baa5ef3d273a19942005776fc76505f78a314904225fc507af0dbb3f66c57437c0247c77bfc461ed449e89e2df6d6bd218872005cea868f4d64b932c22b"
-      ;;
-
-    docker-ce-v18.09.5-debian-10-x86_64.deb )
-      echo "49a548df57fd844044991957aae4711a27b28cd2fc38c813987c227f10d0fe92f3ceb47ba09dcf803ddf0a8f80dd39fa568a9016ca9769619fa9f6c45616b886"
-      ;;
-  esac
-}
-
 get_latest_release() {
   get_latest_github_tag "docker/docker-ce"
 }

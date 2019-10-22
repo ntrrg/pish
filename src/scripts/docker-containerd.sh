@@ -42,18 +42,6 @@ main() {
   fi
 }
 
-get_checksum() {
-  case "$1" in
-    docker-containerd-v1.2.6-3-debian-10-x86_64.deb )
-      echo "477363cabb45521e77563f5d1ffca102965cda6f20150b36329d372d53fc65d257a5efde6ce1304afd9dfb82a2982ae14cf0a5300fc41926b0055ba785756016"
-      ;;
-
-    docker-containerd-v1.2.5-1-debian-10-x86_64.deb )
-      echo "e9f3b3d02ff32740805d24202b1687238a38d954103bb5e90160ae871e39e88ad8002b0238a5ceb00e623308ea51b876cf872de9595f6574ffe8c171a10b3cc2"
-      ;;
-  esac
-}
-
 is_installed() {
   which containerd
 }

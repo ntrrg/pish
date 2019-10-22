@@ -52,10 +52,6 @@ clean() {
 
 # Helpers
 
-get_checksum() {
-  true
-}
-
 get_latest_release() {
   echo "latest"
 }

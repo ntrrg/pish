@@ -5,5 +5,6 @@ nogit-*
 .DS_Store
 .screenrc
 *~
+/src/targets/test.slist
 /dist/
 

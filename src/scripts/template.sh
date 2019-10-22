@@ -95,15 +95,6 @@ clean() {
 # Optional helpers #
 ####################
 
-# This one is mandatory for downloading files.
-get_checksum() {
-  case "$1" in
-    my-package.tar.gz )
-      echo "30f4cfacdf9024a4f4c8233842f40a6027069e81cf5529f2441b22856773abcd716ee92d2303ad3cda5eaeecac3161e5980c0eedeb4ffa077d5c15c7f356512e"
-      ;;
-  esac
-}
-
 get_latest_release() {
   echo "0.2.0"
   return 0

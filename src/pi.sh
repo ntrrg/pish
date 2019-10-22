@@ -14,6 +14,11 @@ main() {
         shift
         ;;
 
+      --checksums )
+        CHECKSUMS_DIR="$(realpath "$2")"
+        shift
+        ;;
+
       --debug )
         DEBUG="true"
         ;;
@@ -38,16 +43,6 @@ main() {
 
       --mirror )
         MIRROR="$2"
-        shift
-        ;;
-
-      --smirror )
-        SCRIPTS_MIRROR="$2"
-        shift
-        ;;
-
-      --tmirror )
-        TARGETS_MIRROR="$2"
         shift
         ;;
 
@@ -300,6 +295,7 @@ Options:
       --cache=PATH      Set the cache directory to find/download the needed
                         files by the scripts. The user must have write
                         permissions. ($CACHE_DIR)
+      --checksums=PATH  Use PATH as checksums directory. ($CHECKSUMS_DIR)
       --debug           Print debugging messages.
   -D, --download        Just run the download stage of every script.
   -f, --force           Run the scripts even if they can be skipped.
@@ -308,10 +304,6 @@ Options:
                         'local' or 'system'. ($EXEC_MODE)
       --mirror=URL      Use URL as base mirror for targets and scripts.
                         ($MIRROR)
-      --smirror=URL     Use URL as scripts mirror when some script can't be
-                        found locally. ($SCRIPTS_MIRROR)
-      --tmirror=URL     Use URL as targets mirror when some target can't be
-                        found locally. ($TARGETS_MIRROR)
       --no-checksum     Disable files checksum comprobation.
       --os=OS           Set environment OS to OS. Valid values are 'debian-10',
                         'android-9', etc... ($OS)
@@ -344,6 +336,7 @@ Environment variables:
   * 'ARCH': behaves as the '--arch' flag.
   * 'BASEPATH': behaves as the '--root' flag.
   * 'CACHE_DIR': behaves as the '--cache' flag.
+  * 'CHECKSUMS_DIR': behaves as the '--checksums' flag.
   * 'DEBUG': behaves as the '--debug' flag.
   * 'EXEC_MODE': behaves as the '-m, --mode' flag.
   * 'FORCE': behaves as the '-f, --force' flag.
@@ -351,10 +344,8 @@ Environment variables:
   * 'NOCHECKSUM': behaves as the '--no-checksum' flag.
   * 'OS': behaves as the '--os' flag.
   * 'SCRIPTS_DIR': behaves as the '--scripts' flag.
-  * 'SCRIPTS_MIRROR': behaves as the '--smirror' flag.
   * 'SU_PASSWD': behaves as the '-P, --passwd' flags.
   * 'SUDO': behaves as the '--sudo' flags.
-  * 'TARGETS_MIRROR': behaves as the '--tmirror' flag.
   * 'TMP_DIR': behaves as the '--temp' flag.
 
 Copyright (c) 2019 Miguel Angel Rivera Notararigo
@@ -372,10 +363,14 @@ export DEBUG="${DEBUG:-false}"
 
 REQUIRE_SU_PASSWD="false"
 STAGE="all"
-MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 SCRIPTS_DIR="${SCRIPTS_DIR:-$TMP_DIR}"
-SCRIPTS_MIRROR="${SCRIPTS_MIRROR:-$MIRROR/scripts}"
-TARGETS_MIRROR="${TARGETS_MIRROR:-$MIRROR/targets}"
+MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
+TARGETS_MIRROR="$MIRROR/targets"
+SCRIPTS_MIRROR="$MIRROR/scripts"
+
+export CHECKSUMS_DIR
+CHECKSUMS_DIR="$(realpath "${CHECKSUMS_DIR:-$TMP_DIR}")"
+export CHECKSUMS_MIRROR="$MIRROR/checksums"
 
 export OS="${OS:-$(get_os)}"
 export ARCH="${ARCH:-$(uname -m)}"

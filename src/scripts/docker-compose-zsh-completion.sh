@@ -15,14 +15,6 @@ main() {
   cp -f "$PACKAGE" "$BASEPATH/share/zsh/vendor-completions/_docker-compose"
 }
 
-get_checksum() {
-  case "$1" in
-    docker-compose-zsh-completion-v1.24.1 )
-      echo "a31f999ea10f4c53bdbf431450b082c363ef22c1e7ad4301be49e254e60b044c079f42c693f1fb3bc9eb7d29b15197dcf21e307b9bae6bcac6e2d84de4e5f60c"
-      ;;
-  esac
-}
-
 get_latest_release() {
   get_latest_github_release "docker/compose"
 }

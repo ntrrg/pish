@@ -5,17 +5,12 @@ checksum() {
   # shellcheck disable=SC2153
   [ "$NOCHECKSUM" = "true" ] && return 0
   FILE="$1"
-  CHECKSUM="$(get_checksum "$FILE")"
+  CHECKSUM_FILE="$2"
 
-  if [ -z "$CHECKSUM" ]; then
-    echo "Invalid file '$FILE'"
-    return 1
-  fi
-
-  if ! b2sum "$FILE" | grep -q "$CHECKSUM"; then
+  if ! b2sum -c --quiet "$CHECKSUM_FILE" < "$FILE" 2> /dev/null; then
     echo "Invalid checksum for '$FILE'"
-    echo "  Want: $CHECKSUM"
-    echo "  Got: $(b2sum "$FILE")"
+    echo "  Want: $(cat "$CHECKSUM_FILE")"
+    echo "  Got: $(b2sum < "$FILE")"
     return 1
   fi
 }
@@ -42,12 +37,20 @@ download_file() {
     return 0
   fi
 
-  if [ -f "$FILE" ] && checksum "$FILE" > /dev/null; then
+  CHECKSUM_FILE="$CHECKSUMS_DIR/$FILE.b2"
+
+  if [ "$NOCHECKSUM" != "true" ] && [ ! -f "$CHECKSUM_FILE" ]; then
+    wget -"$(debug not printf "q")"O "$CHECKSUM_FILE" \
+      "$CHECKSUMS_MIRROR/$(basename "$CHECKSUM_FILE")" ||
+    (rm -f "$CHECKSUM_FILE"; return 1)
+  fi
+
+  if [ -f "$FILE" ] && checksum "$FILE" "$CHECKSUM_FILE" > /dev/null; then
     return 0
   fi
 
   wget -"$(debug not printf "q")"cO "$FILE" "$URL"
-  checksum "$FILE"
+  checksum "$FILE" "$CHECKSUM_FILE"
 }
 
 download_package() {

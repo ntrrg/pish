@@ -35,18 +35,6 @@ clean() {
   esac
 }
 
-get_checksum() {
-  case "$1" in
-    docker-cli-v19.03.2-debian-10-x86_64.deb )
-      echo "1893bdb9096c1084f3eb5613ee632207b26b11034751fa49cde6c61467dacd807614441e4f7c74b826c582a3c5e4eabc094c48e2ce5f68e25f07d3fdd94959ab"
-      ;;
-
-    docker-cli-v18.09.5-debian-10-x86_64.deb )
-      echo "5c3c7688f91a617d64a633d081a6a7ffb23c43292fef37819ad583c785c92c774eb5c0154adadfdce86545bf05898324c08d67c8ee92dc485b809f0215f46fd7"
-      ;;
-  esac
-}
-
 get_latest_release() {
   get_latest_github_tag "docker/cli"
 }
