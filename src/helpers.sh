@@ -50,6 +50,18 @@ download_file() {
   checksum "$FILE"
 }
 
+download_package() {
+  MIRROR="$1"
+  PACKAGE="$2"
+  ORIGIN_PKG="$3"
+
+  if [ -n "$PKG_MIRROR" ]; then
+    download_file "$PKG_MIRROR/$PACKAGE"
+  else
+    download_file "$MIRROR/${ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
+  fi
+}
+
 get_latest_github_release() {
   wget -qO - "https://api.github.com/repos/$1/releases/latest" |
     grep -m 1 "tag_name" |

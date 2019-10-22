@@ -18,11 +18,7 @@ _download() {
 
 download() {
   if [ -n "$MIRROR" ] && [ -n "$PACKAGE" ]; then
-    if [ -n "$PKG_MIRROR" ]; then
-      download_file "$PKG_MIRROR/$PACKAGE"
-    else
-      download_file "$MIRROR/${ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
-    fi
+    download_package "$MIRROR" "$PACKAGE" "$ORIGIN_PKG"
   fi
 }
 

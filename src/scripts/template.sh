@@ -60,6 +60,7 @@ check() {
 download() {
   # This stage downloads all the needed files by the script.
   echo "Downloading v$RELEASE..."
+  # download_package "$MIRROR" "$PACKAGE" "$ORIGIN_PKG"
   # download_file "$MIRROR/${$ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
   # download_file "$PKG_MIRROR/$PACKAGE"
 }
