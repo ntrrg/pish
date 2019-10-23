@@ -12,7 +12,7 @@ check() {
 }
 
 _download() {
-  cd "$CACHE_DIR"
+  cd "$CACHEDIR"
   download
 }
 
@@ -23,7 +23,7 @@ download() {
 }
 
 _main() {
-  cd "$CACHE_DIR"
+  cd "$CACHEDIR"
 
   if [ "$FORCE" = "false" ] && is_installed; then
     echo "It is already installed."

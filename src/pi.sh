@@ -10,12 +10,12 @@ main() {
         ;;
 
       --cache )
-        CACHE_DIR="$2"
+        CACHEDIR="$2"
         shift
         ;;
 
       --checksums )
-        CHECKSUMS_DIR="$(realpath "$2")"
+        CHECKSUMSDIR="$(realpath "$2")"
         shift
         ;;
 
@@ -299,8 +299,8 @@ Options:
                         are 'x86_64', 'i686', etc... ($ARCH)
       --cache=PATH      Set the cache directory to find/download the needed
                         files by the scripts. The user must have write
-                        permissions. ($CACHE_DIR)
-      --checksums=PATH  Use PATH as checksums directory. ($CHECKSUMS_DIR)
+                        permissions. ($CACHEDIR)
+      --checksums=PATH  Use PATH as checksums directory. ($CHECKSUMSDIR)
       --debug           Print debugging messages.
   -D, --download        Just run the download stage of every script.
   -f, --force           Run the scripts even if they can be skipped.
@@ -340,8 +340,8 @@ Scripts syntax:
 Environment variables:
   * 'ARCH': behaves as the '--arch' flag.
   * 'BASEPATH': behaves as the '--root' flag.
-  * 'CACHE_DIR': behaves as the '--cache' flag.
-  * 'CHECKSUMS_DIR': behaves as the '--checksums' flag.
+  * 'CACHEDIR': behaves as the '--cache' flag.
+  * 'CHECKSUMSDIR': behaves as the '--checksums' flag.
   * 'DEBUG': behaves as the '--debug' flag.
   * 'EXEC_MODE': behaves as the '-m, --mode' flag.
   * 'FORCE': behaves as the '-f, --force' flag.
@@ -359,7 +359,7 @@ EOF
 }
 
 export TMPDIR="${TMPDIR:-/tmp}"
-export CACHE_DIR="${CACHE_DIR:-$TMPDIR}"
+export CACHEDIR="${CACHEDIR:-$TMPDIR}"
 export SUDO="${SUDO:-false}"
 export SU_PASSWD="$SU_PASSWD"
 export FORCE="${FORCE:-false}"
@@ -373,8 +373,8 @@ MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 TARGETS_MIRROR="$MIRROR/targets"
 SCRIPTS_MIRROR="$MIRROR/scripts"
 
-export CHECKSUMS_DIR
-CHECKSUMS_DIR="$(realpath "${CHECKSUMS_DIR:-$TMPDIR}")"
+export CHECKSUMSDIR
+CHECKSUMSDIR="$(realpath "${CHECKSUMSDIR:-$TMPDIR}")"
 export CHECKSUMS_MIRROR="$MIRROR/checksums"
 
 export OS="${OS:-$(get_os)}"

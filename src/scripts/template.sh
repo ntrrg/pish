@@ -41,7 +41,7 @@
 # * 'STAGE': is the current stage.
 # * 'SU_PASSWD': contains the root password.
 # * 'FORCE': if 'true', all the instructions must be executed.
-# * 'CACHE_DIR': is the directory where the script should download its files.
+# * 'CACHEDIR': is the directory where the script should download its files.
 # * 'TMPDIR': is the temporary filesystem directory.
 # * 'OS': is the current OS.
 # * 'ARCH': is the current OS architecture.
@@ -68,7 +68,7 @@ download() {
 main() {
   # This stage executes the main code of the script.
 
-  # By default, the working directory is the packages directory ($CACHE_DIR),
+  # By default, the working directory is the packages directory ($CACHEDIR),
   # do all the dirty stuff in the temporary filesystem ($TMPDIR).
   # cd "$TMPDIR"
 

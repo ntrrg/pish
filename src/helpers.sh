@@ -37,7 +37,7 @@ download_file() {
     return 0
   fi
 
-  CHECKSUM_FILE="$CHECKSUMS_DIR/$FILE.sha256"
+  CHECKSUM_FILE="$CHECKSUMSDIR/$FILE.sha256"
 
   if [ "$NOCHECKSUM" != "true" ] && [ ! -f "$CHECKSUM_FILE" ]; then
     wget -"$(debug not printf "q")"O "$CHECKSUM_FILE" \
