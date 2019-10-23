@@ -40,9 +40,11 @@ download_and_check_file() {
   CHECKSUM_FILE="$CHECKSUMSDIR/$(basename "$FILE").sha256"
 
   if [ ! -f "$CHECKSUM_FILE" ]; then
+    OLD_FILE="$FILE"
     download_file "$CHECKSUMS_MIRROR/$(basename "$CHECKSUM_FILE")" \
       "$CHECKSUM_FILE" ||
     (rm -f "$CHECKSUM_FILE"; return 1)
+    FILE="$OLD_FILE"
   fi
 
   if [ -f "$FILE" ] && checksum "$FILE" "$CHECKSUM_FILE" > /dev/null; then
