@@ -222,7 +222,12 @@ run_target() {
       if [ ! -f "$FILE" ]; then
         echo "Can't find '$FILE'"
         printf "Downloading from '%s'... " "$SCRIPTS_MIRROR"
-        download_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
+
+        (
+          download_file "$SCRIPTS_MIRROR/$(basename "$FILE").gz" "$FILE.gz"
+          gzip -d "$FILE.gz"
+        ) || download_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
+
         chmod +x "$FILE"
         echo "[DONE]"
       fi

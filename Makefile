@@ -7,7 +7,7 @@ targets := $(patsubst src/%,dist/%,$(wildcard src/targets/*.slist))
 all: build
 
 .PHONY: build
-build: $(binary) $(checksums) $(targets) $(scripts)
+build: $(checksums) $(binary) $(targets) $(scripts)
 
 clean:
 	rm -rf dist/
@@ -16,6 +16,8 @@ $(binary): src/head.sh src/helpers.sh src/$(notdir $(binary)) src/tail.sh
 	mkdir -p $(dir $@)
 	cat $^ > $@
 	chmod +x $@
+	sha256sum < $@ > dist/checksums/$(notdir $@).sha256
+	./compress_files.sh $@
 
 dist/checksums/%.sha256: src/checksums/%.sha256
 	mkdir -p $(dir $@)
@@ -26,6 +28,7 @@ dist/scripts/%.sh: src/scripts_head.sh src/helpers.sh src/scripts/%.sh src/scrip
 	cat $^ > $@
 	chmod +x $@
 	sha256sum < $@ > dist/checksums/$(notdir $@).sha256
+	./compress_files.sh $@
 
 dist/targets/%.slist: src/targets/%.slist
 	mkdir -p $(dir $@)
