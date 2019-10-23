@@ -308,10 +308,12 @@ run_target() {
 }
 
 show_help() {
-  cat <<EOF
-$0 - Post installation script. It setup the environment as the given target.
+  local NAME="$(basename "$0")"
 
-Usage: $0 [OPTIONS] [TARGET]
+  cat <<EOF
+$NAME - Post installation script. It setup the environment as the given target.
+
+Usage: $NAME [OPTIONS] [TARGET...]
 
 TARGET is a file containing the list of scripts to run. If TARGET doesn't exist
 it will be downloaded from the targets mirror. If no target is given, the
