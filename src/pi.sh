@@ -383,6 +383,6 @@ export CHECKSUMS_MIRROR="$MIRROR/checksums"
 export OS="${OS:-$(get_os)}"
 export ARCH="${ARCH:-$(uname -m)}"
 export EXEC_MODE="${EXEC_MODE:-local}"
-export BASEPATH="${BASEPATH:-~/.local}"
+export BASEPATH="${BASEPATH:-$HOME/.local}"
 export RELEASE
 
