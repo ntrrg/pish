@@ -12,7 +12,7 @@ build: $(checksums) $(binary) $(targets) $(scripts)
 clean:
 	rm -rf dist/
 
-$(binary): src/head.sh src/helpers.sh src/$(notdir $(binary)) src/tail.sh
+$(binary): src/head.sh src/lib.sh src/$(notdir $(binary)) src/tail.sh
 	mkdir -p $(dir $@)
 	cat $^ > $@
 	chmod +x $@
@@ -23,7 +23,7 @@ dist/checksums/%.sha256: src/checksums/%.sha256
 	mkdir -p $(dir $@)
 	cp $< $@
 
-dist/scripts/%.sh: src/scripts_head.sh src/helpers.sh src/scripts/%.sh src/scripts_tail.sh
+dist/scripts/%.sh: src/scripts_head.sh src/lib.sh src/scripts/%.sh src/scripts_tail.sh
 	mkdir -p $(dir $@)
 	cat $^ > $@
 	chmod +x $@
@@ -37,7 +37,7 @@ dist/targets/%.slist: src/targets/%.slist
 
 # Development
 
-excluded_warnings := 2230
+excluded_warnings := 2039,2155,2230
 
 .PHONY: ci
 ci: clean all lint

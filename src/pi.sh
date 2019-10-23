@@ -104,16 +104,17 @@ main() {
 }
 
 check_rules() {
-  CHECK_ERRORS="false"
-  FILE="$1"
+  local ERRORS="false"
+  local FILE="$1"
 
   # ENV
 
-  RULES="$(grep "^# ENV=" "$FILE" | sed "s/# ENV=//" | tr ";" " ")"
+  local RULES="$(grep "^# ENV=" "$FILE" | sed "s/# ENV=//" | tr ";" " ")"
+  local RULE
 
   for RULE in $RULES; do
-    NAME=""
-    VALUE=""
+    local NAME
+    local VALUE
 
     if echo "$RULE" | grep -q "^\!"; then
       VALUE="false"
@@ -124,7 +125,7 @@ check_rules() {
     NAME="ENV_$(echo "$RULE" | tr -d "\!" | tr "[:lower:]" "[:upper:]")"
 
     if ! env | grep -q "^$NAME=$VALUE$"; then
-      CHECK_ERRORS="true"
+      ERRORS="true"
       echo "ENV: broken rule '$RULE'"
       echo "  Want: '$NAME=$VALUE'; Got: '$(env | grep "^$NAME")'"
     fi
@@ -133,11 +134,11 @@ check_rules() {
   # EXEC_MODE
 
   if [ "$EXEC_MODE" = "local" ] && grep -q "^# EXEC_MODE=system" "$FILE"; then
-    CHECK_ERRORS="true"
+    ERRORS="true"
     echo "EXEC_MODE: can't be executed in local mode"
   fi
 
-  if [ "$CHECK_ERRORS" = "true" ]; then
+  if [ "$ERRORS" = "true" ]; then
     return 1
   fi
 }
@@ -147,7 +148,7 @@ check_su_passwd() {
     return 0
   fi
 
-  FILE="$1"
+  local FILE="$1"
 
   if grep -q "^# SUPER_USER=false" "$FILE" &&
       grep -q "^# EXEC_MODE=local" "$FILE" &&
@@ -158,16 +159,34 @@ check_su_passwd() {
   REQUIRE_SU_PASSWD="true"
 }
 
+get_os() {
+  case "$(uname -s)" in
+    Darwin* )
+      echo "macos"
+      ;;
+
+    * )
+      if which lsb_release; then
+        echo "$(lsb_release -si | tr "[:upper:]" "[:lower:]")-$(lsb_release -sr)"
+      elif which getprop; then
+        echo "android-$(getprop ro.build.version.release)"
+      else
+        echo "all"
+      fi
+      ;;
+  esac
+}
+
 run_script() {
-  FILE="$1"
-  RUN_STAGE="${2:-$STAGE}"
+  local FILE="$1"
+  local RUN_STAGE="${2:-$STAGE}"
 
   if [ "$RUN_STAGE" != "all" ]; then
     eval "$FILE $RUN_STAGE $(debug not printf "> /dev/null 2> /dev/null")"
     return 0
   fi
 
-  SCRIPT_ERRORS="false"
+  local ERRORS="false"
 
   BIN_DEPS="$(
     grep "^# BIN_DEPS=" "$FILE" |
@@ -177,11 +196,11 @@ run_script() {
 
   for BIN_DEP in $BIN_DEPS; do
     if ! which_print "$BIN_DEP"; then
-      SCRIPT_ERRORS="true"
+      ERRORS="true"
     fi
   done
 
-  if [ "$SCRIPT_ERRORS" = "true" ]; then
+  if [ "$ERRORS" = "true" ]; then
     return 1
   fi
 
@@ -189,10 +208,10 @@ run_script() {
 }
 
 run_target() {
-  TARGET_ERRORS="false"
   REQUIRE_SU_PASSWD="false"
-  SCRIPTS=""
-  TARGET="$1"
+  local ERRORS="false"
+  local SCRIPTS=""
+  local TARGET="$1"
 
   if [ -z "$TARGET" ] || [ "$TARGET" = "-" ]; then
     TARGET="-"
@@ -203,11 +222,13 @@ run_target() {
     echo "[DONE]"
   fi
 
+  local LINE
+
   # shellcheck disable=SC2002 disable=2013
   for LINE in $(cat "$TARGET" | grep -v "^#" | grep -v "^$"); do
     if echo "$LINE" | grep -q "="; then
-      NAME="$(echo "$LINE" | cut -d "=" -f 1)"
-      VALUE="$(echo "$LINE" | cut -d "=" -f 2)"
+      local NAME="$(echo "$LINE" | cut -d "=" -f 1)"
+      local VALUE="$(echo "$LINE" | cut -d "=" -f 2)"
 
       if [ "$NAME" = "BASEPATH" ] && echo "$VALUE" | grep -q "^\~"; then
         VALUE="$HOME/$(echo "$VALUE" | sed "s/^\~\///")"
@@ -216,19 +237,17 @@ run_target() {
       export "$NAME"="$VALUE"
     else
       SCRIPTS="$SCRIPTS $LINE"
-      NAME="$LINE"
-      FILE="$SCRIPTSDIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
+      local NAME="$LINE"
+      local FILE="$SCRIPTSDIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
 
       if [ ! -f "$FILE" ]; then
         echo "Can't find '$FILE'"
         printf "Downloading from '%s'... " "$SCRIPTS_MIRROR"
 
-        OLD_FILE="$FILE"
         (
           download_file "$SCRIPTS_MIRROR/$(basename "$FILE").gz" "$FILE.gz"
-          gzip -d "$FILE"
+          gzip -d "$FILE.gz"
         ) || true
-        FILE="$OLD_FILE"
 
         download_and_check_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
         chmod +x "$FILE"
@@ -241,11 +260,11 @@ run_target() {
 
       echo "Checking '$NAME'..."
       check_su_passwd "$FILE"
-      check_rules "$FILE" || TARGET_ERRORS="true"
+      check_rules "$FILE" || ERRORS="true"
     fi
   done
 
-  if [ "$TARGET_ERRORS" = "true" ]; then
+  if [ "$ERRORS" = "true" ]; then
     return 1
   fi
 
@@ -260,12 +279,13 @@ run_target() {
   fi
 
   echo
+  local SCRIPT
 
   for SCRIPT in $SCRIPTS; do
     debug echo
     printf "Running '%s'... " "$SCRIPT"
 
-    RE="^.\+-v\([0-9]\+\(\.[0-9]\+\)*\)$"
+    local RE="^.\+-v\([0-9]\+\(\.[0-9]\+\)*\)$"
     RELEASE="$SCRIPT"
     SCRIPT="$(echo "$SCRIPT" | cut -d '#' -f 1)"
 
@@ -333,7 +353,7 @@ Script list file syntax:
   See $TARGETS_MIRROR/template.slist
 
 Scripts syntax:
-  * The script must be POSIX compliant.
+  * The script must be POSIX compliant, but can use the 'local' keyword.
   * The script should have at least the 'main' stage.
   * The script may have custom functions and variables.
   * The script must pass shellcheck.
