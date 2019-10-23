@@ -66,7 +66,7 @@ main() {
         ;;
 
       --scripts )
-        SCRIPTS_DIR="$2"
+        SCRIPTSDIR="$2"
         shift
         ;;
 
@@ -87,7 +87,7 @@ main() {
     shift
   done
 
-  mkdir -p "$SCRIPTS_DIR"
+  mkdir -p "$SCRIPTSDIR"
 
   if [ $# -eq 0 ]; then
     eval set -- "-"
@@ -217,7 +217,7 @@ run_target() {
     else
       SCRIPTS="$SCRIPTS $LINE"
       NAME="$LINE"
-      FILE="$SCRIPTS_DIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
+      FILE="$SCRIPTSDIR/$(echo "$LINE" | cut -d '#' -f 1).sh"
 
       if [ ! -f "$FILE" ]; then
         echo "Can't find '$FILE'"
@@ -272,14 +272,14 @@ run_target() {
       RELEASE="$(echo "$RELEASE" | sed "s/$RE/\1/")"
     else
       RELEASE="$(
-        DEBUG="true" run_script "$SCRIPTS_DIR/$SCRIPT.sh" get_latest_release
+        DEBUG="true" run_script "$SCRIPTSDIR/$SCRIPT.sh" get_latest_release
       )"
 
       printf "(v%s) " "$RELEASE"
     fi
 
     debug echo
-    run_script "$SCRIPTS_DIR/$SCRIPT.sh"
+    run_script "$SCRIPTSDIR/$SCRIPT.sh"
     debug not echo "[DONE]"
   done
 }
@@ -315,7 +315,7 @@ Options:
   -P, --passwd=PASSWD   Use PASSWD as super-user password.
       --root=PATH       Set installation path to PATH. Usual values are
                         '/', '/usr' and '~/.local'. ($BASEPATH)
-      --scripts=PATH    Use PATH as scripts directory. ($SCRIPTS_DIR)
+      --scripts=PATH    Use PATH as scripts directory. ($SCRIPTSDIR)
       --sudo            Use 'sudo' for running super-user commands.
       --temp=PATH       Use PATH as temporal filesystem. The user must have
                         write permissions. ($TMPDIR)
@@ -348,7 +348,7 @@ Environment variables:
   * 'MIRROR': behaves as the '--mirror' flag.
   * 'NOCHECKSUM': behaves as the '--no-checksum' flag.
   * 'OS': behaves as the '--os' flag.
-  * 'SCRIPTS_DIR': behaves as the '--scripts' flag.
+  * 'SCRIPTSDIR': behaves as the '--scripts' flag.
   * 'SU_PASSWD': behaves as the '-P, --passwd' flags.
   * 'SUDO': behaves as the '--sudo' flags.
   * 'TMPDIR': behaves as the '--temp' flag.
@@ -368,7 +368,7 @@ export DEBUG="${DEBUG:-false}"
 
 REQUIRE_SU_PASSWD="false"
 STAGE="all"
-SCRIPTS_DIR="${SCRIPTS_DIR:-$TMPDIR}"
+SCRIPTSDIR="${SCRIPTSDIR:-$TMPDIR}"
 MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 TARGETS_MIRROR="$MIRROR/targets"
 SCRIPTS_MIRROR="$MIRROR/scripts"
