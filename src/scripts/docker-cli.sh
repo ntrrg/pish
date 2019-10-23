@@ -16,7 +16,7 @@ main() {
       if [ "$EXEC_MODE" = "system" ]; then
         run_su dpkg -i "$PACKAGE"
       else
-        DEST="$TMP_DIR/docker-cli"
+        DEST="$TMPDIR/docker-cli"
         mkdir -p "$DEST"
         dpkg -x "$PACKAGE" "$DEST"
         cd "$DEST"
@@ -30,7 +30,7 @@ main() {
 clean() {
   case "$STAGE" in
     main )
-      rm -rf "$TMP_DIR/docker-cli"
+      rm -rf "$TMPDIR/docker-cli"
       ;;
   esac
 }

@@ -75,7 +75,7 @@ main() {
         ;;
 
       --temp )
-        TMP_DIR="$2"
+        TMPDIR="$2"
         shift
         ;;
 
@@ -318,7 +318,7 @@ Options:
       --scripts=PATH    Use PATH as scripts directory. ($SCRIPTS_DIR)
       --sudo            Use 'sudo' for running super-user commands.
       --temp=PATH       Use PATH as temporal filesystem. The user must have
-                        write permissions. ($TMP_DIR)
+                        write permissions. ($TMPDIR)
 
 Script list file syntax:
   A line-separated list of scripts to run. Each line must have one of the
@@ -351,15 +351,15 @@ Environment variables:
   * 'SCRIPTS_DIR': behaves as the '--scripts' flag.
   * 'SU_PASSWD': behaves as the '-P, --passwd' flags.
   * 'SUDO': behaves as the '--sudo' flags.
-  * 'TMP_DIR': behaves as the '--temp' flag.
+  * 'TMPDIR': behaves as the '--temp' flag.
 
 Copyright (c) 2019 Miguel Angel Rivera Notararigo
 Released under the MIT License
 EOF
 }
 
-export TMP_DIR="${TMP_DIR:-/tmp}"
-export CACHE_DIR="${CACHE_DIR:-$TMP_DIR}"
+export TMPDIR="${TMPDIR:-/tmp}"
+export CACHE_DIR="${CACHE_DIR:-$TMPDIR}"
 export SUDO="${SUDO:-false}"
 export SU_PASSWD="$SU_PASSWD"
 export FORCE="${FORCE:-false}"
@@ -368,13 +368,13 @@ export DEBUG="${DEBUG:-false}"
 
 REQUIRE_SU_PASSWD="false"
 STAGE="all"
-SCRIPTS_DIR="${SCRIPTS_DIR:-$TMP_DIR}"
+SCRIPTS_DIR="${SCRIPTS_DIR:-$TMPDIR}"
 MIRROR="${MIRROR:-https://post-install.nt.web.ve}"
 TARGETS_MIRROR="$MIRROR/targets"
 SCRIPTS_MIRROR="$MIRROR/scripts"
 
 export CHECKSUMS_DIR
-CHECKSUMS_DIR="$(realpath "${CHECKSUMS_DIR:-$TMP_DIR}")"
+CHECKSUMS_DIR="$(realpath "${CHECKSUMS_DIR:-$TMPDIR}")"
 export CHECKSUMS_MIRROR="$MIRROR/checksums"
 
 export OS="${OS:-$(get_os)}"

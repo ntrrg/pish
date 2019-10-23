@@ -42,7 +42,7 @@
 # * 'SU_PASSWD': contains the root password.
 # * 'FORCE': if 'true', all the instructions must be executed.
 # * 'CACHE_DIR': is the directory where the script should download its files.
-# * 'TMP_DIR': is the temporary filesystem directory.
+# * 'TMPDIR': is the temporary filesystem directory.
 # * 'OS': is the current OS.
 # * 'ARCH': is the current OS architecture.
 # * 'RELEASE': is the package release to setup.
@@ -69,8 +69,8 @@ main() {
   # This stage executes the main code of the script.
 
   # By default, the working directory is the packages directory ($CACHE_DIR),
-  # do all the dirty stuff in the temporary filesystem ($TMP_DIR).
-  # cd "$TMP_DIR"
+  # do all the dirty stuff in the temporary filesystem ($TMPDIR).
+  # cd "$TMPDIR"
 
   echo "Running v$RELEASE..."
 }
