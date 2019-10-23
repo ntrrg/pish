@@ -27,11 +27,21 @@ ORIGIN_PKG="shellcheck-v$RELEASE"
 PACKAGE="shellcheck-v$RELEASE"
 
 case "$OS" in
-  * )
+  debian* )
     ORIGIN_PKG="$ORIGIN_PKG.linux"
     PACKAGE="$PACKAGE-linux"
     ;;
+
+  * )
+    echo "Unsupported OS '$OS'"
+    false
+    ;;
 esac
+
+if [ "$ARCH" != "x86_64" ]; then
+  echo "Unsupported OS architecture '$ARCH'"
+  false
+fi
 
 ORIGIN_PKG="$ORIGIN_PKG.$ARCH.tar.xz"
 PACKAGE="$PACKAGE-$ARCH.tar.xz"
