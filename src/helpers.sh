@@ -64,7 +64,7 @@ download_file() {
     return 0
   fi
 
-  wget -"$(debug not printf "q")"cO "$FILE" "$URL"
+  wget -"$(debug not printf "q")"O "$FILE" "$URL"
 }
 
 download_package() {
