@@ -73,9 +73,9 @@ download_package() {
   ORIGIN_PKG="$3"
 
   if [ -n "$PKG_MIRROR" ]; then
-    check_and_download_file "$PKG_MIRROR/$PACKAGE"
+    download_and_check_file "$PKG_MIRROR/$PACKAGE"
   else
-    check_and_download_file "$MIRROR/${ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
+    download_and_check_file "$MIRROR/${ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
   fi
 }
 
