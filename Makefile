@@ -1,5 +1,5 @@
 binary := dist/pi.sh
-checksums := $(patsubst src/%,dist/%,$(wildcard src/checksums/*.b2))
+checksums := $(patsubst src/%,dist/%,$(wildcard src/checksums/*.sha256))
 scripts := $(patsubst src/%,dist/%,$(wildcard src/scripts/*.sh))
 targets := $(patsubst src/%,dist/%,$(wildcard src/targets/*.slist))
 
@@ -17,7 +17,7 @@ $(binary): src/head.sh src/helpers.sh src/$(notdir $(binary)) src/tail.sh
 	cat $^ > $@
 	chmod +x $@
 
-dist/checksums/%.b2: src/checksums/%.b2
+dist/checksums/%.sha256: src/checksums/%.sha256
 	mkdir -p $(dir $@)
 	cp $< $@
 
@@ -25,12 +25,12 @@ dist/scripts/%.sh: src/scripts_head.sh src/helpers.sh src/scripts/%.sh src/scrip
 	mkdir -p $(dir $@)
 	cat $^ > $@
 	chmod +x $@
-	b2sum < $@ > dist/checksums/$(notdir $@).b2
+	sha256sum < $@ > dist/checksums/$(notdir $@).sha256
 
 dist/targets/%.slist: src/targets/%.slist
 	mkdir -p $(dir $@)
 	cp $< $@
-	b2sum < $@ > dist/checksums/$(notdir $@).b2
+	sha256sum < $@ > dist/checksums/$(notdir $@).sha256
 
 # Development
 

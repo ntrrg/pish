@@ -7,10 +7,10 @@ checksum() {
   FILE="$1"
   CHECKSUM_FILE="$2"
 
-  if ! b2sum -c --quiet "$CHECKSUM_FILE" < "$FILE" 2> /dev/null; then
+  if ! sha256sum -c --quiet "$CHECKSUM_FILE" < "$FILE" 2> /dev/null; then
     echo "Invalid checksum for '$FILE'"
     echo "  Want: $(cat "$CHECKSUM_FILE")"
-    echo "  Got: $(b2sum < "$FILE")"
+    echo "  Got: $(sha256sum < "$FILE")"
     return 1
   fi
 }
@@ -37,7 +37,7 @@ download_file() {
     return 0
   fi
 
-  CHECKSUM_FILE="$CHECKSUMS_DIR/$FILE.b2"
+  CHECKSUM_FILE="$CHECKSUMS_DIR/$FILE.sha256"
 
   if [ "$NOCHECKSUM" != "true" ] && [ ! -f "$CHECKSUM_FILE" ]; then
     wget -"$(debug not printf "q")"O "$CHECKSUM_FILE" \
