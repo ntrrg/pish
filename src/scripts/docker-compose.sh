@@ -28,11 +28,21 @@ ORIGIN_PKG="docker-compose"
 PACKAGE="docker-compose-v$RELEASE"
 
 case "$OS" in
-  * )
+  debian* )
     ORIGIN_PKG="$ORIGIN_PKG-Linux"
     PACKAGE="$PACKAGE-linux"
     ;;
+
+  * )
+    echo "Unsupported OS '$OS'"
+    false
+    ;;
 esac
+
+if [ "$ARCH" != "x86_64" ]; then
+  echo "Unsupported OS architecture '$ARCH'"
+  false
+fi
 
 ORIGIN_PKG="$ORIGIN_PKG-$ARCH"
 PACKAGE="$PACKAGE-$ARCH"
