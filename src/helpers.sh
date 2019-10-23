@@ -5,7 +5,7 @@ checksum() {
   # shellcheck disable=SC2153
   [ "$NOCHECKSUM" = "true" ] && return 0
   FILE="$1"
-  CHECKSUM_FILE="$2"
+  CHECKSUM_FILE="${2:-$CHECKSUMSDIR/$(basename "$FILE").sha256}"
 
   if ! sha256sum -c --quiet "$CHECKSUM_FILE" < "$FILE" 2> /dev/null; then
     echo "Invalid checksum for '$FILE'"
@@ -28,6 +28,31 @@ debug() {
   fi
 }
 
+download_and_check_file() {
+  URL="$1"
+  FILE="${2:-$(basename "$URL")}"
+
+  if [ "$NOCHECKSUM" = "true" ]; then
+    download_file "$URL" "$FILE"
+    return 0
+  fi
+
+  CHECKSUM_FILE="$CHECKSUMSDIR/$(basename "$FILE").sha256"
+
+  if [ ! -f "$CHECKSUM_FILE" ]; then
+    download_file "$CHECKSUMS_MIRROR/$(basename "$CHECKSUM_FILE")" \
+      "$CHECKSUM_FILE" ||
+    (rm -f "$CHECKSUM_FILE"; return 1)
+  fi
+
+  if [ -f "$FILE" ] && checksum "$FILE" "$CHECKSUM_FILE" > /dev/null; then
+    return 0
+  fi
+
+  download_file "$URL" "$FILE"
+  checksum "$FILE" "$CHECKSUM_FILE"
+}
+
 download_file() {
   URL="$1"
   FILE="${2:-$(basename "$URL")}"
@@ -37,20 +62,7 @@ download_file() {
     return 0
   fi
 
-  CHECKSUM_FILE="$CHECKSUMSDIR/$FILE.sha256"
-
-  if [ "$NOCHECKSUM" != "true" ] && [ ! -f "$CHECKSUM_FILE" ]; then
-    wget -"$(debug not printf "q")"O "$CHECKSUM_FILE" \
-      "$CHECKSUMS_MIRROR/$(basename "$CHECKSUM_FILE")" ||
-    (rm -f "$CHECKSUM_FILE"; return 1)
-  fi
-
-  if [ -f "$FILE" ] && checksum "$FILE" "$CHECKSUM_FILE" > /dev/null; then
-    return 0
-  fi
-
   wget -"$(debug not printf "q")"cO "$FILE" "$URL"
-  checksum "$FILE" "$CHECKSUM_FILE"
 }
 
 download_package() {
@@ -59,9 +71,9 @@ download_package() {
   ORIGIN_PKG="$3"
 
   if [ -n "$PKG_MIRROR" ]; then
-    download_file "$PKG_MIRROR/$PACKAGE"
+    check_and_download_file "$PKG_MIRROR/$PACKAGE"
   else
-    download_file "$MIRROR/${ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
+    check_and_download_file "$MIRROR/${ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
   fi
 }
 

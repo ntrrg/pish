@@ -61,6 +61,8 @@ download() {
   # This stage downloads all the needed files by the script.
   echo "Downloading v$RELEASE..."
   # download_package "$MIRROR" "$PACKAGE" "$ORIGIN_PKG"
+  # download_and_check_file "$MIRROR/${$ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
+  # download_and_check_file "$PKG_MIRROR/$PACKAGE"
   # download_file "$MIRROR/${$ORIGIN_PKG:-$PACKAGE}" "$PACKAGE"
   # download_file "$PKG_MIRROR/$PACKAGE"
 }
@@ -130,14 +132,13 @@ is_installed() {
 ################################
 
 # If there is no download stage and this two environment variables are defined,
-# 'download_file "$MIRROR/$PACKAGE"' will be called.
+# 'download_package "$MIRROR" "$PACKAGE"' will be called.
 #
 # MIRROR="https://s6.nt.web.ve/software/linux"
 # PACKAGE="test-v$RELEASE-$OS-$ARCH.tar.gz"
 #
 # If the original file has a different name than the stored package, set the
-# 'ORIGIN_PKG' variable and 'download_file "$MIRROR/$ORIGIN_PKG" "$PACKAGE"'
-# will be called.
+# 'ORIGIN_PKG'.
 #
 # ORIGIN_PKG="test-v$RELEASE.linux.$ARCH.tar.gz"
 

@@ -223,11 +223,14 @@ run_target() {
         echo "Can't find '$FILE'"
         printf "Downloading from '%s'... " "$SCRIPTS_MIRROR"
 
+        OLD_FILE="$FILE"
         (
           download_file "$SCRIPTS_MIRROR/$(basename "$FILE").gz" "$FILE.gz"
-          gzip -d "$FILE.gz"
-        ) || download_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
+          gzip -d "$FILE"
+        ) || true
+        FILE="$OLD_FILE"
 
+        download_and_check_file "$SCRIPTS_MIRROR/$(basename "$FILE")" "$FILE"
         chmod +x "$FILE"
         echo "[DONE]"
       fi
