@@ -11,6 +11,6 @@ insert_final_newline = true
 [*.md]
 indent_size = 4
 
-[*.mk,Makefile]
+[*.{go,mk},Makefile]
 indent_style = tab
 

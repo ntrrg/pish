@@ -1,6 +1,6 @@
 ---
 title: pish
-description: Replicador de entornos.
+description: Herramienta para la automatización de tareas.
 metadata:
   source-code: https://github.com/ntrrg/pish
   license: MIT
@@ -9,7 +9,6 @@ kinds:
 techs:
   - make
   - shell-scripting
-  - shellcheck
   - travis
 ---
 

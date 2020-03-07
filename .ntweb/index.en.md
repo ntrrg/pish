@@ -1,6 +1,6 @@
 ---
 title: pish
-description: Environments replicator.
+description: Tasks automation tool.
 metadata:
   source-code: https://github.com/ntrrg/pish
   license: MIT
@@ -9,7 +9,6 @@ kinds:
 techs:
   - make
   - shell-scripting
-  - shellcheck
   - travis
 ---
 
@@ -18,6 +17,9 @@ techs:
 
 **pish** is a post installation scripts runner, great for replicate
 environments in different hardware.
+
+**pish** is a task automation tool, great for fast environments setup and
+scripts running.
 
 # Support
 

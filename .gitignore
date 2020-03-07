@@ -1,10 +1,37 @@
-*.sublime*
-*.sw[op]
-*.vim
 nogit-*
-.DS_Store
-.screenrc
-*~
 /src/targets/test.slist
 /dist/
+
+######
+# OS #
+######
+
+# MacOS
+.DS_Store
+
+###########
+# Editors #
+###########
+
+# Sublime Text
+*.sublime*
+
+# Vim
+*.sw[op]
+Session.vim
+*~
+
+#########
+# Tools #
+#########
+
+# GNU Screen
+.screenrc
+
+# Mage
+.mage/output/
+
+#######################
+# Frameworks and libs #
+#######################
 
